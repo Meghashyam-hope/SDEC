@@ -1,0 +1,288 @@
+.sdec-ballot {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--sdec-offwhite);
+  position: relative;
+}
+
+.sdec-ballot-status {
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--sdec-muted);
+}
+
+.sdec-ballot-header {
+  max-width: 480px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 24px 20px 16px;
+  background: var(--sdec-white);
+  border-bottom: 1px solid var(--sdec-border);
+}
+
+.sdec-ballot-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--sdec-ink);
+}
+
+.sdec-ballot-subtitle {
+  font-size: 13px;
+  color: var(--sdec-muted);
+  margin-top: 4px;
+}
+
+.sdec-ballot-body {
+  flex: 1;
+  max-width: 480px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 18px 16px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+}
+
+.sdec-position-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.sdec-position-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--sdec-navy);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.sdec-candidate-list {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.sdec-candidate-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 14px;
+  cursor: pointer;
+  border: 1.5px solid var(--sdec-border);
+  background: var(--sdec-white);
+  transition: all 0.18s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+
+.sdec-candidate-card.selected {
+  border: 2px solid var(--sdec-teal);
+  background: var(--sdec-teal-tint);
+  transform: scale(1.015);
+}
+
+.sdec-candidate-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.sdec-candidate-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--sdec-ink);
+}
+
+.sdec-candidate-manifesto {
+  font-size: 12.5px;
+  color: var(--sdec-muted);
+  margin-top: 3px;
+  line-height: 1.4;
+}
+
+.sdec-radio {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--sdec-border);
+  transition: all 0.18s ease;
+}
+
+.sdec-radio.selected {
+  border-color: var(--sdec-teal);
+  background: var(--sdec-teal);
+}
+
+.sdec-ballot-footer {
+  max-width: 480px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 14px 18px 26px;
+  background: var(--sdec-white);
+  border-top: 1px solid var(--sdec-border);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sdec-ballot-error {
+  font-size: 12.5px;
+  color: var(--sdec-warn);
+  background: var(--sdec-warn-tint);
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+
+.sdec-progress-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sdec-progress-label {
+  font-size: 12.5px;
+  color: var(--sdec-muted);
+  font-weight: 600;
+}
+
+.sdec-progress-track {
+  width: 120px;
+  height: 5px;
+  background: var(--sdec-border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.sdec-progress-fill {
+  height: 100%;
+  background: var(--sdec-teal);
+  transition: width 0.3s ease;
+  border-radius: 4px;
+}
+
+.sdec-submit-btn {
+  text-align: center;
+  padding: 14px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: default;
+  background: oklch(90% 0.006 85);
+  color: oklch(60% 0.01 262);
+  transition: all 0.2s ease;
+}
+
+.sdec-submit-btn.enabled {
+  cursor: pointer;
+  background: var(--sdec-teal);
+  color: var(--sdec-white);
+  box-shadow: 0 8px 20px oklch(56% 0.09 175 / 0.35);
+}
+
+.sdec-sheet-scrim {
+  position: fixed;
+  inset: 0;
+  background: oklch(15% 0.03 262 / 0.55);
+  z-index: 40;
+  animation: sdecFadeIn 0.2s ease;
+}
+
+.sdec-sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 41;
+  max-width: 480px;
+  margin: 0 auto;
+  background: var(--sdec-white);
+  border-radius: 20px 20px 0 0;
+  padding: 22px 20px 28px;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.25);
+  animation: sdecSheetUp 0.32s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+
+.sdec-sheet-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--sdec-ink);
+  margin-bottom: 4px;
+}
+
+.sdec-sheet-warning {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  background: var(--sdec-warn-tint);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin: 12px 0 14px;
+  font-size: 12.5px;
+  color: oklch(35% 0.1 35);
+  line-height: 1.45;
+}
+
+.sdec-sheet-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 220px;
+  overflow: auto;
+  margin-bottom: 18px;
+}
+
+.sdec-sheet-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 12px;
+  background: var(--sdec-offwhite);
+  border-radius: 9px;
+}
+
+.sdec-sheet-row-label {
+  font-size: 12.5px;
+  color: var(--sdec-muted);
+  font-weight: 600;
+}
+
+.sdec-sheet-row-value {
+  font-size: 13.5px;
+  color: var(--sdec-ink);
+  font-weight: 700;
+}
+
+.sdec-sheet-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.sdec-sheet-cancel {
+  flex: 1;
+  text-align: center;
+  padding: 13px;
+  border-radius: 12px;
+  border: 1.5px solid var(--sdec-border);
+  color: var(--sdec-muted);
+  font-weight: 600;
+  font-size: 14.5px;
+  cursor: pointer;
+}
+
+.sdec-sheet-confirm {
+  flex: 1.4;
+  text-align: center;
+  padding: 13px;
+  border-radius: 12px;
+  background: var(--sdec-teal);
+  color: var(--sdec-white);
+  font-weight: 700;
+  font-size: 14.5px;
+  cursor: pointer;
+  box-shadow: 0 6px 16px oklch(56% 0.09 175 / 0.35);
+}

@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { margin: 0; background: oklch(92% 0.008 262); font-family: 'Inter', -apple-system, system-ui, sans-serif; }
+    * { box-sizing: border-box; }
+    ::selection { background: oklch(56% 0.09 175 / 0.25); }
+    @keyframes sdecPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+    @keyframes sdecDash { to { stroke-dashoffset: 0; } }
+    @keyframes sdecSheetUp { from { transform: translateY(28px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    @keyframes sdecFadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes sdecPop { 0% { transform: scale(0.82) rotate(-6deg); opacity: 0; } 65% { transform: scale(1.06) rotate(1deg); opacity: 1; } 100% { transform: scale(1) rotate(0deg); } }
+    @keyframes sdecFloat { 0%, 100% { transform: translate(0,0); } 50% { transform: translate(6px,-8px); } }
+    input::placeholder { color: oklch(60% 0.01 262); }
+    input:focus { outline: none; }
+  </style>
+  <script src="./image-slot.js"></script>
+</helmet>
+
+<div style="min-height: 100vh; background: oklch(92% 0.008 262); display: flex; align-items: center; justify-content: center; padding: 90px 24px 40px; position: relative;">
+
+  <div style="position: fixed; top: 16px; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; gap: 2px; background: oklch(99% 0.002 85 / 0.9); backdrop-filter: blur(10px); border-radius: 999px; padding: 5px; box-shadow: 0 4px 16px rgba(0,0,0,0.1); border: 1px solid oklch(89% 0.006 85);">
+    <sc-for list="{{ navItems }}" as="item" hint-placeholder-count="6">
+      <div style="{{ item.btnStyle }}" onClick="{{ item.onClick }}">{{ item.label }}</div>
+    </sc-for>
+  </div>
+
+  <sc-if value="{{ showDevice }}" hint-placeholder-val="{{ true }}">
+    <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ deviceDark }}" hint-size="402px,874px">
+      <div style="height: 100%; position: relative; overflow: hidden; background: oklch(97% 0.006 85);">
+
+        <sc-if value="{{ isLogin }}" hint-placeholder-val="{{ false }}">
+          <div style="height: 100%; position: relative; overflow: hidden; background: linear-gradient(160deg, oklch(15% 0.045 262) 0%, oklch(22% 0.05 262) 55%, oklch(18% 0.05 265) 100%);">
+            <canvas ref="{{ particleCanvasRef }}" style="position: absolute; inset: 0; width: 100%; height: 100%;"></canvas>
+            <div style="position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 28px 40px; gap: 28px;">
+              <div style="display: flex; flex-direction: column; align-items: center; gap: 14px;">
+                <image-slot id="institution-logo" shape="circle" style="width: 76px; height: 76px;" placeholder="Institution logo"></image-slot>
+                <div style="text-align: center;">
+                  <div style="color: oklch(99% 0.002 85); font-size: 22px; font-weight: 700; letter-spacing: 1px;">SDEC</div>
+                  <div style="color: oklch(80% 0.01 262); font-size: 12.5px; margin-top: 4px; letter-spacing: 0.3px;">Student Digital Election Commission</div>
+                </div>
+              </div>
+              <div style="width: 100%; max-width: 320px; background: oklch(99% 0.002 85 / 0.97); border-radius: 18px; padding: 22px 20px 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.35);">
+                <div style="font-size: 15px; font-weight: 700; color: oklch(20% 0.02 262); margin-bottom: 16px;">Sign in to vote</div>
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                  <div>
+                    <div style="font-size: 11.5px; font-weight: 600; color: oklch(46% 0.02 262); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.4px;">Roll Number</div>
+                    <input value="{{ rollNumber }}" onChange="{{ onRollChange }}" placeholder="e.g. 22CS1042" style="width: 100%; padding: 12px 13px; border-radius: 10px; border: 1.5px solid oklch(89% 0.006 85); font-size: 15px; font-family: inherit; color: oklch(20% 0.02 262); background: oklch(97% 0.006 85);"></input>
+                  </div>
+                  <div>
+                    <div style="font-size: 11.5px; font-weight: 600; color: oklch(46% 0.02 262); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.4px;">Password</div>
+                    <input type="password" value="{{ password }}" onChange="{{ onPasswordChange }}" placeholder="••••••••" style="width: 100%; padding: 12px 13px; border-radius: 10px; border: 1.5px solid oklch(89% 0.006 85); font-size: 15px; font-family: inherit; color: oklch(20% 0.02 262); background: oklch(97% 0.006 85);"></input>
+                  </div>
+                  <div style="{{ signInBtnStyle }}" onClick="{{ onSignIn }}">Sign In</div>
+                  <div style="display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 2px;">
+                    <svg width="12" height="14" viewBox="0 0 12 14"><path d="M6 0L0 2.2v3.5c0 3.6 2.4 6.9 6 8 3.6-1.1 6-4.4 6-8V2.2L6 0z" fill="oklch(56% 0.02 262)"></path></svg>
+                    <div style="font-size: 11px; color: oklch(56% 0.02 262);">Secured with your institution ID</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isHome }}" hint-placeholder-val="{{ false }}">
+          <div style="height: 100%; overflow: auto; background: oklch(97% 0.006 85);">
+            <div style="background: oklch(24% 0.05 262); padding: 58px 20px 22px; color: oklch(99% 0.002 85);">
+              <div style="font-size: 12px; letter-spacing: 1.2px; opacity: 0.7; text-transform: uppercase;">SDEC · Riverside College</div>
+              <div style="font-size: 22px; font-weight: 700; margin-top: 6px;">Hi, Aditi</div>
+              <div style="font-size: 13px; opacity: 0.75; margin-top: 3px;">Roll No. 22CS1042</div>
+            </div>
+            <div style="padding: 18px 16px 32px; display: flex; flex-direction: column; gap: 14px;">
+              <div style="font-size: 13px; font-weight: 700; color: oklch(46% 0.02 262); text-transform: uppercase; letter-spacing: 0.6px; margin: 4px 2px 0;">Elections</div>
+              <sc-for list="{{ elections }}" as="el" hint-placeholder-count="3">
+                <div style="{{ el.cardStyle }}" onClick="{{ el.onClick }}">
+                  <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;">
+                    <div style="font-size: 16px; font-weight: 700; color: oklch(20% 0.02 262); line-height: 1.3;">{{ el.title }}</div>
+                    <div style="{{ el.badgeStyle }}">{{ el.statusLabel }}</div>
+                  </div>
+                  <div style="font-size: 13px; color: oklch(46% 0.02 262); margin-top: 8px;">{{ el.meta }}</div>
+                  <sc-if value="{{ el.showCta }}" hint-placeholder-val="{{ false }}">
+                    <div style="{{ el.ctaStyle }}">{{ el.ctaLabel }}</div>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isBallot }}" hint-placeholder-val="{{ false }}">
+          <div style="height: 100%; display: flex; flex-direction: column; position: relative; background: oklch(97% 0.006 85);">
+            <div style="padding: 58px 20px 16px; background: oklch(99% 0.002 85); border-bottom: 1px solid oklch(89% 0.006 85);">
+              <div style="font-size: 18px; font-weight: 700; color: oklch(20% 0.02 262);">Student Council Elections 2026</div>
+              <div style="font-size: 13px; color: oklch(46% 0.02 262); margin-top: 4px;">Select one candidate per position</div>
+            </div>
+            <div style="flex: 1; overflow: auto; padding: 18px 16px 24px; display: flex; flex-direction: column; gap: 26px;">
+              <sc-for list="{{ displayPositions }}" as="pos" hint-placeholder-count="4">
+                <div>
+                  <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+                    <div style="font-size: 14px; font-weight: 700; color: oklch(24% 0.05 262); text-transform: uppercase; letter-spacing: 0.5px;">{{ pos.title }}</div>
+                    <sc-if value="{{ pos.isComplete }}" hint-placeholder-val="{{ false }}">
+                      <svg width="14" height="14" viewBox="0 0 24 24"><circle cx="12" cy="12" r="12" fill="oklch(56% 0.09 175)"></circle><path d="M6 12.5l4 4 8-8.5" stroke="white" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                    </sc-if>
+                  </div>
+                  <div style="display: flex; flex-direction: column; gap: 9px;">
+                    <sc-for list="{{ pos.candidates }}" as="cand" hint-placeholder-count="2">
+                      <div style="{{ cand.cardStyle }}" onClick="{{ cand.onClick }}">
+                        <image-slot id="photo-{{ cand.id }}" shape="circle" style="width: 46px; height: 46px; flex-shrink: 0;" placeholder="Photo"></image-slot>
+                        <div style="flex: 1; min-width: 0;">
+                          <div style="font-size: 15px; font-weight: 700; color: oklch(20% 0.02 262);">{{ cand.name }}</div>
+                          <div style="font-size: 12.5px; color: oklch(46% 0.02 262); margin-top: 3px; line-height: 1.4;">{{ cand.manifesto }}</div>
+                        </div>
+                        <div style="{{ cand.radioStyle }}">
+                          <sc-if value="{{ cand.selected }}" hint-placeholder-val="{{ false }}">
+                            <svg width="12" height="12" viewBox="0 0 24 24"><path d="M4 12.5l5 5 11-11" stroke="white" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                          </sc-if>
+                        </div>
+                      </div>
+                    </sc-for>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+            <div style="padding: 14px 18px 26px; background: oklch(99% 0.002 85); border-top: 1px solid oklch(89% 0.006 85); display: flex; flex-direction: column; gap: 10px;">
+              <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div style="font-size: 12.5px; color: oklch(46% 0.02 262); font-weight: 600;">{{ progressLabel }}</div>
+                <div style="width: 120px; height: 5px; background: oklch(89% 0.006 85); border-radius: 4px; overflow: hidden;">
+                  <div style="{{ progressBarStyle }}"></div>
+                </div>
+              </div>
+              <div style="{{ submitBtnStyle }}" onClick="{{ onOpenConfirm }}">Submit Vote</div>
+            </div>
+
+            <sc-if value="{{ confirmOpen }}" hint-placeholder-val="{{ false }}">
+              <div style="position: absolute; inset: 0; background: oklch(15% 0.03 262 / 0.55); z-index: 40; animation: sdecFadeIn 0.2s ease;" onClick="{{ onCancelConfirm }}"></div>
+              <div style="position: absolute; left: 0; right: 0; bottom: 0; z-index: 41; background: oklch(99% 0.002 85); border-radius: 20px 20px 0 0; padding: 22px 20px 28px; box-shadow: 0 -10px 40px rgba(0,0,0,0.25); animation: sdecSheetUp 0.32s cubic-bezier(0.2,0.8,0.3,1);">
+                <div style="font-size: 17px; font-weight: 700; color: oklch(20% 0.02 262); margin-bottom: 4px;">Confirm your vote</div>
+                <div style="display: flex; gap: 8px; align-items: flex-start; background: oklch(94% 0.03 35); border-radius: 10px; padding: 10px 12px; margin: 12px 0 14px;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" style="flex-shrink: 0; margin-top: 2px;"><path d="M12 2L1 21h22L12 2z" fill="none" stroke="oklch(52% 0.13 35)" stroke-width="2" stroke-linejoin="round"></path><line x1="12" y1="9" x2="12" y2="14" stroke="oklch(52% 0.13 35)" stroke-width="2" stroke-linecap="round"></line><circle cx="12" cy="17.5" r="1.2" fill="oklch(52% 0.13 35)"></circle></svg>
+                  <div style="font-size: 12.5px; color: oklch(35% 0.1 35); line-height: 1.45;">This action is final. Votes cannot be changed once submitted.</div>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 8px; max-height: 220px; overflow: auto; margin-bottom: 18px;">
+                  <sc-for list="{{ confirmRows }}" as="row" hint-placeholder-count="4">
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 9px 12px; background: oklch(97% 0.006 85); border-radius: 9px;">
+                      <div style="font-size: 12.5px; color: oklch(46% 0.02 262); font-weight: 600;">{{ row.positionTitle }}</div>
+                      <div style="font-size: 13.5px; color: oklch(20% 0.02 262); font-weight: 700;">{{ row.candidateName }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                  <div style="flex: 1; text-align: center; padding: 13px; border-radius: 12px; border: 1.5px solid oklch(89% 0.006 85); color: oklch(46% 0.02 262); font-weight: 600; font-size: 14.5px;" onClick="{{ onCancelConfirm }}">Cancel</div>
+                  <div style="flex: 1.4; text-align: center; padding: 13px; border-radius: 12px; background: oklch(56% 0.09 175); color: oklch(99% 0.002 85); font-weight: 700; font-size: 14.5px; box-shadow: 0 6px 16px oklch(56% 0.09 175 / 0.35);" onClick="{{ onConfirmSubmit }}">Confirm &amp; Submit</div>
+                </div>
+              </div>
+            </sc-if>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isSuccess }}" hint-placeholder-val="{{ false }}">
+          <div style="height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; padding: 40px 30px; background: oklch(97% 0.006 85); text-align: center;">
+            <div style="width: 84px; height: 84px; border-radius: 50%; border: 3px solid oklch(56% 0.09 175); display: flex; align-items: center; justify-content: center; animation: sdecPop 0.5s cubic-bezier(0.25,1,0.4,1);">
+              <svg width="42" height="42" viewBox="0 0 24 24"><path d="M4 12.5l5 5 11-11" stroke="oklch(56% 0.09 175)" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="40" stroke-dashoffset="40" style="animation: sdecDash 0.5s ease 0.35s forwards;"></path></svg>
+            </div>
+            <div>
+              <div style="font-size: 20px; font-weight: 700; color: oklch(20% 0.02 262);">Your vote has been recorded</div>
+              <div style="font-size: 13.5px; color: oklch(46% 0.02 262); margin-top: 8px; line-height: 1.5;">Thank you for taking part in the Student Council Elections 2026.</div>
+            </div>
+            <div style="background: oklch(94.5% 0.008 85); border-radius: 12px; padding: 14px 20px; display: flex; flex-direction: column; gap: 4px;">
+              <div style="font-size: 11px; color: oklch(46% 0.02 262); text-transform: uppercase; letter-spacing: 0.5px;">Confirmation ID</div>
+              <div style="font-size: 15px; font-weight: 700; color: oklch(20% 0.02 262); font-variant-numeric: tabular-nums;">{{ receiptId }}</div>
+            </div>
+            <div style="font-size: 12px; color: oklch(56% 0.02 262);">You may now close this window.</div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isResults }}" hint-placeholder-val="{{ false }}">
+          <div style="height: 100%; overflow: auto; background: oklch(97% 0.006 85);">
+            <div style="position: relative; overflow: hidden; padding: 58px 20px 22px; background: oklch(15% 0.045 262);">
+              <div style="position: absolute; width: 200px; height: 200px; border-radius: 50%; background: oklch(56% 0.09 175 / 0.35); filter: blur(50px); top: -70px; right: -50px;"></div>
+              <div style="position: absolute; width: 160px; height: 160px; border-radius: 50%; background: oklch(40% 0.06 262 / 0.5); filter: blur(45px); bottom: -60px; left: -30px;"></div>
+              <div style="position: relative; z-index: 1;">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <div style="width: 7px; height: 7px; border-radius: 50%; background: oklch(56% 0.09 175); animation: sdecPulse 1.4s ease infinite;"></div>
+                  <div style="font-size: 11.5px; font-weight: 700; color: oklch(56% 0.09 175); letter-spacing: 1px;">LIVE RESULTS</div>
+                </div>
+                <div style="font-size: 18px; font-weight: 700; color: oklch(99% 0.002 85); margin-top: 8px;">Student Council Elections 2026</div>
+                <div style="display: flex; gap: 18px; margin-top: 12px;">
+                  <div>
+                    <div style="font-size: 10.5px; color: oklch(70% 0.01 262); text-transform: uppercase; letter-spacing: 0.4px;">Turnout</div>
+                    <div style="font-size: 16px; font-weight: 800; color: oklch(99% 0.002 85); font-variant-numeric: tabular-nums;">{{ turnoutLabel }}</div>
+                  </div>
+                  <div>
+                    <div style="font-size: 10.5px; color: oklch(70% 0.01 262); text-transform: uppercase; letter-spacing: 0.4px;">Closes in</div>
+                    <div style="font-size: 16px; font-weight: 800; color: oklch(99% 0.002 85); font-variant-numeric: tabular-nums;">{{ countdownLabel }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div style="padding: 20px 16px 32px; display: flex; flex-direction: column; gap: 24px;">
+              <sc-for list="{{ resultPositions }}" as="pos" hint-placeholder-count="4">
+                <div>
+                  <div style="font-size: 13.5px; font-weight: 700; color: oklch(24% 0.05 262); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;">{{ pos.title }}</div>
+                  <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <sc-for list="{{ pos.candidates }}" as="cand" hint-placeholder-count="2">
+                      <div>
+                        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 5px;">
+                          <div style="font-size: 13.5px; color: oklch(20% 0.02 262); font-weight: 600; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-right: 8px;">{{ cand.name }}</div>
+                          <div style="font-size: 13.5px; color: oklch(20% 0.02 262); font-weight: 800; font-variant-numeric: tabular-nums; flex-shrink: 0;">{{ cand.pctLabel }}</div>
+                        </div>
+                        <div style="height: 9px; background: oklch(92% 0.006 85); border-radius: 5px; overflow: hidden;">
+                          <div style="{{ cand.barStyle }}"></div>
+                        </div>
+                        <div style="font-size: 11px; color: oklch(56% 0.02 262); margin-top: 4px; font-variant-numeric: tabular-nums;">{{ cand.votesLabel }}</div>
+                      </div>
+                    </sc-for>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+      </div>
+    </x-import>
+  </sc-if>
+
+  <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+    <div style="width: 100%; max-width: 900px; background: oklch(99% 0.002 85); border-radius: 18px; box-shadow: 0 20px 60px rgba(0,0,0,0.12); overflow: hidden; border: 1px solid oklch(89% 0.006 85);">
+      <div style="background: oklch(24% 0.05 262); padding: 26px 32px; display: flex; align-items: center; justify-content: space-between;">
+        <div>
+          <div style="font-size: 12px; letter-spacing: 1.2px; color: oklch(80% 0.01 262); text-transform: uppercase;">SDEC Admin</div>
+          <div style="font-size: 20px; font-weight: 700; color: oklch(99% 0.002 85); margin-top: 4px;">Election Management</div>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <div style="{{ adminTabCreateStyle }}" onClick="{{ onAdminTabCreate }}">Create Election</div>
+          <div style="{{ adminTabTurnoutStyle }}" onClick="{{ onAdminTabTurnout }}">Turnout Summary</div>
+        </div>
+      </div>
+
+      <sc-if value="{{ isAdminCreate }}" hint-placeholder-val="{{ true }}">
+        <div style="padding: 28px 32px 36px;">
+          <sc-if value="{{ justCreated }}" hint-placeholder-val="{{ false }}">
+            <div style="background: oklch(94% 0.035 175); color: oklch(35% 0.08 175); padding: 12px 16px; border-radius: 10px; font-size: 13.5px; font-weight: 600; margin-bottom: 18px;">Election created — it will appear to students once activated.</div>
+          </sc-if>
+          <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 16px; margin-bottom: 24px;">
+            <div>
+              <div style="font-size: 12px; font-weight: 600; color: oklch(46% 0.02 262); margin-bottom: 6px;">Election Title</div>
+              <input value="{{ admin.title }}" onChange="{{ onAdminTitleChange }}" placeholder="e.g. Student Council Elections 2027" style="width: 100%; padding: 11px 13px; border-radius: 9px; border: 1.5px solid oklch(89% 0.006 85); font-size: 14px; font-family: inherit; color: oklch(20% 0.02 262);"></input>
+            </div>
+            <div>
+              <div style="font-size: 12px; font-weight: 600; color: oklch(46% 0.02 262); margin-bottom: 6px;">Opens</div>
+              <input type="datetime-local" value="{{ admin.startDate }}" onChange="{{ onAdminStartChange }}" style="width: 100%; padding: 11px 13px; border-radius: 9px; border: 1.5px solid oklch(89% 0.006 85); font-size: 14px; font-family: inherit; color: oklch(20% 0.02 262);"></input>
+            </div>
+            <div>
+              <div style="font-size: 12px; font-weight: 600; color: oklch(46% 0.02 262); margin-bottom: 6px;">Closes</div>
+              <input type="datetime-local" value="{{ admin.endDate }}" onChange="{{ onAdminEndChange }}" style="width: 100%; padding: 11px 13px; border-radius: 9px; border: 1.5px solid oklch(89% 0.006 85); font-size: 14px; font-family: inherit; color: oklch(20% 0.02 262);"></input>
+            </div>
+          </div>
+
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+            <div style="font-size: 13px; font-weight: 700; color: oklch(24% 0.05 262); text-transform: uppercase; letter-spacing: 0.5px;">Positions</div>
+            <div style="font-size: 12.5px; font-weight: 600; color: oklch(56% 0.09 175); cursor: pointer;" onClick="{{ onAddPosition }}">+ Add position</div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 14px;">
+            <sc-for list="{{ admin.positions }}" as="pos" hint-placeholder-count="2">
+              <div style="border: 1px solid oklch(89% 0.006 85); border-radius: 12px; padding: 16px;">
+                <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 12px;">
+                  <input value="{{ pos.title }}" onChange="{{ pos.onTitleChange }}" placeholder="Position title" style="flex: 1; padding: 9px 11px; border-radius: 8px; border: 1.5px solid oklch(89% 0.006 85); font-size: 13.5px; font-weight: 600; font-family: inherit; color: oklch(20% 0.02 262);"></input>
+                  <div style="font-size: 12px; color: oklch(52% 0.13 35); font-weight: 600; cursor: pointer; padding: 4px 8px;" onClick="{{ pos.onRemove }}">Remove</div>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                  <sc-for list="{{ pos.candidates }}" as="cand" hint-placeholder-count="2">
+                    <div style="display: flex; gap: 8px; align-items: center; background: oklch(97% 0.006 85); border-radius: 8px; padding: 8px;">
+                      <input value="{{ cand.name }}" onChange="{{ cand.onNameChange }}" placeholder="Candidate name" style="width: 160px; padding: 7px 9px; border-radius: 7px; border: 1px solid oklch(89% 0.006 85); font-size: 13px; font-family: inherit;"></input>
+                      <input value="{{ cand.manifesto }}" onChange="{{ cand.onManifestoChange }}" placeholder="One-line manifesto" style="flex: 1; padding: 7px 9px; border-radius: 7px; border: 1px solid oklch(89% 0.006 85); font-size: 13px; font-family: inherit;"></input>
+                      <div style="font-size: 11.5px; color: oklch(52% 0.13 35); font-weight: 600; cursor: pointer; flex-shrink: 0;" onClick="{{ cand.onRemove }}">✕</div>
+                    </div>
+                  </sc-for>
+                  <div style="font-size: 12px; font-weight: 600; color: oklch(56% 0.09 175); cursor: pointer; padding: 2px;" onClick="{{ pos.onAddCandidate }}">+ Add candidate</div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; margin-top: 24px;">
+            <div style="padding: 13px 26px; background: oklch(24% 0.05 262); color: oklch(99% 0.002 85); border-radius: 10px; font-weight: 700; font-size: 14px; cursor: pointer;" onClick="{{ onSubmitElection }}">Create Election</div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isAdminTurnout }}" hint-placeholder-val="{{ false }}">
+        <div style="padding: 28px 32px 36px;">
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 28px;">
+            <div style="background: oklch(94.5% 0.008 85); border-radius: 12px; padding: 18px;">
+              <div style="font-size: 11.5px; color: oklch(46% 0.02 262); text-transform: uppercase; letter-spacing: 0.4px;">Registered Voters</div>
+              <div style="font-size: 26px; font-weight: 800; color: oklch(20% 0.02 262); margin-top: 6px; font-variant-numeric: tabular-nums;">2,600</div>
+            </div>
+            <div style="background: oklch(94.5% 0.008 85); border-radius: 12px; padding: 18px;">
+              <div style="font-size: 11.5px; color: oklch(46% 0.02 262); text-transform: uppercase; letter-spacing: 0.4px;">Votes Cast</div>
+              <div style="font-size: 26px; font-weight: 800; color: oklch(20% 0.02 262); margin-top: 6px; font-variant-numeric: tabular-nums;">1,842</div>
+            </div>
+            <div style="background: oklch(94% 0.035 175); border-radius: 12px; padding: 18px;">
+              <div style="font-size: 11.5px; color: oklch(35% 0.08 175); text-transform: uppercase; letter-spacing: 0.4px;">Turnout</div>
+              <div style="font-size: 26px; font-weight: 800; color: oklch(35% 0.08 175); margin-top: 6px; font-variant-numeric: tabular-nums;">71%</div>
+            </div>
+          </div>
+          <div style="font-size: 13px; font-weight: 700; color: oklch(24% 0.05 262); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px;">Turnout by Department</div>
+          <div style="display: flex; flex-direction: column; gap: 14px;">
+            <sc-for list="{{ departments }}" as="dept" hint-placeholder-count="4">
+              <div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                  <div style="font-size: 13px; color: oklch(20% 0.02 262); font-weight: 600;">{{ dept.name }}</div>
+                  <div style="font-size: 12.5px; color: oklch(46% 0.02 262); font-variant-numeric: tabular-nums;">{{ dept.label }}</div>
+                </div>
+                <div style="height: 8px; background: oklch(92% 0.006 85); border-radius: 5px; overflow: hidden;">
+                  <div style="{{ dept.barStyle }}"></div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+    </div>
+  </sc-if>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const POSITIONS = [
+  { id: 'president', title: 'President', candidates: [
+    { id: 'president-aditi', name: 'Aditi Sharma', manifesto: 'Transparent budgets and a stronger student voice in academic policy.' },
+    { id: 'president-rohan', name: 'Rohan Mehta', manifesto: 'Better campus infrastructure and extended library hours.' },
+  ]},
+  { id: 'vp', title: 'Vice President', candidates: [
+    { id: 'vp-priya', name: 'Priya Nair', manifesto: 'Champion for mental health resources and peer support.' },
+    { id: 'vp-karan', name: 'Karan Verma', manifesto: 'One unified calendar linking every club and society event.' },
+  ]},
+  { id: 'secretary', title: 'Secretary', candidates: [
+    { id: 'sec-fatima', name: 'Fatima Ali', manifesto: 'Weekly transparent updates on every council decision.' },
+    { id: 'sec-sameer', name: 'Sameer Iyer', manifesto: 'Digitized records and faster grievance redressal.' },
+  ]},
+  { id: 'treasurer', title: 'Treasurer', candidates: [
+    { id: 'treas-neha', name: 'Neha Kapoor', manifesto: 'Quarterly budget reports open to every student.' },
+    { id: 'treas-vikram', name: 'Vikram Singh', manifesto: 'Festival funds redirected toward need-based scholarships.' },
+    { id: 'treas-arjun', name: 'Arjun Das', manifesto: "Independent audits of every club's spending." },
+  ]},
+];
+
+const RESULTS = [
+  { id: 'president', title: 'President', total: 1842, candidates: [
+    { name: 'Aditi Sharma', votes: 1034 }, { name: 'Rohan Mehta', votes: 808 },
+  ]},
+  { id: 'vp', title: 'Vice President', total: 1842, candidates: [
+    { name: 'Priya Nair', votes: 1190 }, { name: 'Karan Verma', votes: 652 },
+  ]},
+  { id: 'secretary', title: 'Secretary', total: 1842, candidates: [
+    { name: 'Fatima Ali', votes: 990 }, { name: 'Sameer Iyer', votes: 852 },
+  ]},
+  { id: 'treasurer', title: 'Treasurer', total: 1842, candidates: [
+    { name: 'Neha Kapoor', votes: 780 }, { name: 'Vikram Singh', votes: 640 }, { name: 'Arjun Das', votes: 422 },
+  ]},
+];
+
+const DEPARTMENTS = [
+  { name: 'Engineering', cast: 612, total: 820 },
+  { name: 'Business', cast: 430, total: 600 },
+  { name: 'Arts & Humanities', cast: 390, total: 560 },
+  { name: 'Sciences', cast: 410, total: 620 },
+];
+
+const NAV = [
+  { key: 'login', label: 'Login' },
+  { key: 'home', label: 'Home' },
+  { key: 'ballot', label: 'Ballot' },
+  { key: 'success', label: 'Success' },
+  { key: 'results', label: 'Results' },
+  { key: 'admin', label: 'Admin' },
+];
+
+class Component extends DCLogic {
+  state = {
+    screen: 'login',
+    rollNumber: '', password: '',
+    selections: {}, confirmOpen: false, hasVoted: false, receiptId: '',
+    countdownSeconds: 8073,
+    resultsAnimated: false,
+    adminTab: 'create',
+    justCreated: false,
+    admin: {
+      title: 'Student Council Elections 2027', startDate: '', endDate: '',
+      positions: [
+        { id: 'ap1', title: 'General Secretary', candidates: [{ id: 'ac1', name: '', manifesto: '' }] },
+      ],
+    },
+  };
+
+  idSeq = 1;
+  genId() { return 'id' + (this.idSeq++) + '-' + Math.random().toString(36).slice(2, 6); }
+
+  componentDidMount() {
+    this._timer = setInterval(() => {
+      this.setState(s => ({ countdownSeconds: Math.max(0, s.countdownSeconds - 1) }));
+    }, 1000);
+  }
+  componentWillUnmount() { clearInterval(this._timer); if (this._raf) cancelAnimationFrame(this._raf); }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (this.state.screen === 'results' && prevState.screen !== 'results') {
+      this._resultsTimeout = setTimeout(() => this.setState({ resultsAnimated: true }), 60);
+    }
+    if (this.state.screen !== 'results' && prevState.screen === 'results') {
+      clearTimeout(this._resultsTimeout);
+      this.setState({ resultsAnimated: false });
+    }
+  }
+
+  setupParticles = (el) => {
+    if (!el) { if (this._raf) cancelAnimationFrame(this._raf); this._canvas = null; return; }
+    this._canvas = el;
+    const ctx = el.getContext('2d');
+    const w = el.width = el.offsetWidth || 402;
+    const h = el.height = el.offsetHeight || 874;
+    if (!this._particles) {
+      this._particles = Array.from({ length: 36 }, () => ({
+        x: Math.random() * w, y: Math.random() * h,
+        vx: (Math.random() - 0.5) * 0.12, vy: (Math.random() - 0.5) * 0.12,
+        r: Math.random() * 1.6 + 0.6,
+        teal: Math.random() > 0.65,
+      }));
+    }
+    const draw = () => {
+      if (!this._canvas) return;
+      ctx.clearRect(0, 0, w, h);
+      for (const p of this._particles) {
+        p.x += p.vx; p.y += p.vy;
+        if (p.x < 0) p.x = w; if (p.x > w) p.x = 0;
+        if (p.y < 0) p.y = h; if (p.y > h) p.y = 0;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = p.teal ? 'rgba(90,200,180,0.35)' : 'rgba(255,255,255,0.22)';
+        ctx.fill();
+      }
+      this._raf = requestAnimationFrame(draw);
+    };
+    draw();
+  };
+
+  goTo = (screen) => this.setState({ screen, confirmOpen: false });
+
+  selectCandidate(posId, candId) {
+    this.setState(s => ({ selections: { ...s.selections, [posId]: candId } }));
+  }
+
+  formatCountdown(sec) {
+    const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60), s = sec % 60;
+    const pad = n => String(n).padStart(2, '0');
+    return `${pad(h)}:${pad(m)}:${pad(s)}`;
+  }
+
+  updateAdminPosition(posId, field, value) {
+    this.setState(s => ({
+      admin: { ...s.admin, positions: s.admin.positions.map(p => p.id === posId ? { ...p, [field]: value } : p) },
+    }));
+  }
+  updateAdminCandidate(posId, candId, field, value) {
+    this.setState(s => ({
+      admin: {
+        ...s.admin,
+        positions: s.admin.positions.map(p => p.id !== posId ? p : {
+          ...p, candidates: p.candidates.map(c => c.id === candId ? { ...c, [field]: value } : c),
+        }),
+      },
+    }));
+  }
+
+  renderVals() {
+    const s = this.state;
+    const colorInk = 'oklch(20% 0.02 262)';
+    const navy = 'oklch(24% 0.05 262)';
+    const teal = 'oklch(56% 0.09 175)';
+    const tealTint = 'oklch(94% 0.035 175)';
+    const border = 'oklch(89% 0.006 85)';
+    const white = 'oklch(99% 0.002 85)';
+
+    const navItems = NAV.map(n => ({
+      key: n.key, label: n.label,
+      onClick: () => this.goTo(n.key),
+      btnStyle: {
+        padding: '7px 13px', borderRadius: 999, fontSize: 12, fontWeight: 600, cursor: 'pointer',
+        color: s.screen === n.key ? white : 'oklch(46% 0.02 262)',
+        background: s.screen === n.key ? navy : 'transparent',
+        transition: 'all 0.15s ease',
+      },
+    }));
+
+    const selectedCount = Object.values(s.selections).filter(Boolean).length;
+    const allSelected = selectedCount === POSITIONS.length;
+
+    const displayPositions = POSITIONS.map(pos => ({
+      id: pos.id, title: pos.title,
+      isComplete: !!s.selections[pos.id],
+      candidates: pos.candidates.map(c => {
+        const selected = s.selections[pos.id] === c.id;
+        return {
+          id: c.id, name: c.name, manifesto: c.manifesto, selected,
+          onClick: () => this.selectCandidate(pos.id, c.id),
+          cardStyle: {
+            display: 'flex', alignItems: 'center', gap: 12, padding: 12, borderRadius: 14, cursor: 'pointer',
+            border: selected ? `2px solid ${teal}` : `1.5px solid ${border}`,
+            background: selected ? tealTint : white,
+            transform: selected ? 'scale(1.015)' : 'scale(1)',
+            transition: 'all 0.18s cubic-bezier(0.2,0.8,0.3,1)',
+          },
+          radioStyle: {
+            width: 22, height: 22, borderRadius: '50%', flexShrink: 0,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            border: selected ? `2px solid ${teal}` : `2px solid ${border}`,
+            background: selected ? teal : 'transparent',
+            transition: 'all 0.18s ease',
+          },
+        };
+      }),
+    }));
+
+    const progressLabel = `${selectedCount} of ${POSITIONS.length} positions selected`;
+    const progressBarStyle = { height: '100%', width: `${(selectedCount / POSITIONS.length) * 100}%`, background: teal, transition: 'width 0.3s ease', borderRadius: 4 };
+    const submitBtnStyle = {
+      textAlign: 'center', padding: 14, borderRadius: 12, fontWeight: 700, fontSize: 15,
+      cursor: allSelected ? 'pointer' : 'default',
+      background: allSelected ? teal : 'oklch(90% 0.006 85)',
+      color: allSelected ? white : 'oklch(60% 0.01 262)',
+      boxShadow: allSelected ? `0 8px 20px oklch(56% 0.09 175 / 0.35)` : 'none',
+      transition: 'all 0.2s ease',
+    };
+    const confirmRows = POSITIONS.map(pos => {
+      const candId = s.selections[pos.id];
+      const cand = pos.candidates.find(c => c.id === candId);
+      return { positionTitle: pos.title, candidateName: cand ? cand.name : '—' };
+    });
+
+    const statusMap = {
+      active: { bg: 'oklch(93% 0.045 175)', fg: 'oklch(40% 0.07 175)', label: 'ACTIVE' },
+      upcoming: { bg: 'oklch(93% 0.01 262)', fg: 'oklch(40% 0.02 262)', label: 'UPCOMING' },
+      closed: { bg: 'oklch(92% 0.004 85)', fg: 'oklch(45% 0.006 85)', label: 'CLOSED' },
+    };
+    const electionsRaw = [
+      { id: 'sc2026', title: 'Student Council Elections 2026', status: 'active', meta: s.hasVoted ? 'You voted · Live results available' : `Closes in ${this.formatCountdown(s.countdownSeconds)}`, clickable: true },
+      { id: 'hostel', title: 'Hostel Committee Election', status: 'upcoming', meta: 'Opens July 28, 2026', clickable: false },
+      { id: 'cultural', title: 'Cultural Secretary By-Election', status: 'closed', meta: 'Closed · Results available', clickable: true },
+    ];
+    const elections = electionsRaw.map(el => {
+      const st = statusMap[el.status];
+      const onClick = el.clickable ? () => {
+        if (el.id === 'sc2026') this.goTo(s.hasVoted ? 'results' : 'ballot');
+        else this.goTo('results');
+      } : undefined;
+      return {
+        id: el.id, title: el.title, meta: el.meta, statusLabel: st.label,
+        onClick,
+        showCta: el.clickable,
+        ctaLabel: el.id === 'sc2026' ? (s.hasVoted ? 'View live results →' : 'Vote now →') : 'View results →',
+        cardStyle: {
+          background: white, borderRadius: 14, padding: 16, border: `1px solid ${border}`,
+          cursor: el.clickable ? 'pointer' : 'default', opacity: el.clickable ? 1 : 0.6,
+        },
+        badgeStyle: { fontSize: 10.5, fontWeight: 700, letterSpacing: 0.4, padding: '4px 9px', borderRadius: 999, background: st.bg, color: st.fg, flexShrink: 0 },
+        ctaStyle: { fontSize: 13, fontWeight: 700, color: teal, marginTop: 10 },
+      };
+    });
+
+    const resultPositions = RESULTS.map(pos => ({
+      title: pos.title,
+      candidates: pos.candidates.map(c => {
+        const pct = Math.round((c.votes / pos.total) * 100);
+        return {
+          name: c.name,
+          pctLabel: `${pct}%`,
+          votesLabel: `${c.votes.toLocaleString()} votes`,
+          barStyle: { height: '100%', width: s.resultsAnimated ? `${pct}%` : '0%', background: teal, borderRadius: 5, transition: 'width 1s cubic-bezier(0.16,0.8,0.2,1)' },
+        };
+      }),
+    }));
+
+    const adminTabBase = { padding: '9px 16px', borderRadius: 9, fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all 0.15s ease' };
+    const admin = {
+      title: s.admin.title, startDate: s.admin.startDate, endDate: s.admin.endDate,
+      positions: s.admin.positions.map(p => ({
+        id: p.id, title: p.title,
+        onTitleChange: e => this.updateAdminPosition(p.id, 'title', e.target.value),
+        onRemove: () => this.setState(st => ({ admin: { ...st.admin, positions: st.admin.positions.filter(x => x.id !== p.id) } })),
+        onAddCandidate: () => this.setState(st => ({
+          admin: { ...st.admin, positions: st.admin.positions.map(x => x.id !== p.id ? x : { ...x, candidates: [...x.candidates, { id: this.genId(), name: '', manifesto: '' }] }) },
+        })),
+        candidates: p.candidates.map(c => ({
+          id: c.id, name: c.name, manifesto: c.manifesto,
+          onNameChange: e => this.updateAdminCandidate(p.id, c.id, 'name', e.target.value),
+          onManifestoChange: e => this.updateAdminCandidate(p.id, c.id, 'manifesto', e.target.value),
+          onRemove: () => this.setState(st => ({
+            admin: { ...st.admin, positions: st.admin.positions.map(x => x.id !== p.id ? x : { ...x, candidates: x.candidates.filter(y => y.id !== c.id) }) },
+          })),
+        })),
+      })),
+    };
+
+    const departments = DEPARTMENTS.map(d => {
+      const pct = Math.round((d.cast / d.total) * 100);
+      return { name: d.name, label: `${d.cast} / ${d.total} · ${pct}%`, barStyle: { height: '100%', width: `${pct}%`, background: teal, borderRadius: 5 } };
+    });
+
+    return {
+      isLogin: s.screen === 'login', isHome: s.screen === 'home', isBallot: s.screen === 'ballot',
+      isSuccess: s.screen === 'success', isResults: s.screen === 'results', isAdmin: s.screen === 'admin',
+      showDevice: s.screen !== 'admin',
+      deviceDark: s.screen === 'login' || s.screen === 'results',
+      navItems,
+      rollNumber: s.rollNumber, password: s.password,
+      onRollChange: e => this.setState({ rollNumber: e.target.value }),
+      onPasswordChange: e => this.setState({ password: e.target.value }),
+      onSignIn: () => this.goTo('home'),
+      signInBtnStyle: {
+        textAlign: 'center', padding: 13, borderRadius: 11, fontWeight: 700, fontSize: 15, marginTop: 4,
+        cursor: 'pointer', background: navy, color: white,
+      },
+      particleCanvasRef: this.setupParticles,
+      elections,
+      displayPositions, progressLabel, progressBarStyle, submitBtnStyle,
+      onOpenConfirm: () => { if (allSelected) this.setState({ confirmOpen: true }); },
+      confirmOpen: s.confirmOpen, confirmRows,
+      onCancelConfirm: () => this.setState({ confirmOpen: false }),
+      onConfirmSubmit: () => {
+        const receiptId = 'SDEC-' + Math.floor(100000 + Math.random() * 900000);
+        this.setState({ hasVoted: true, receiptId, confirmOpen: false, screen: 'success' });
+      },
+      receiptId: s.receiptId || 'SDEC-000000',
+      turnoutLabel: '1,842 / 2,600 · 71%',
+      countdownLabel: this.formatCountdown(s.countdownSeconds),
+      resultPositions,
+      adminTabCreateStyle: { ...adminTabBase, background: s.adminTab === 'create' ? white : 'transparent', color: s.adminTab === 'create' ? navy : white },
+      adminTabTurnoutStyle: { ...adminTabBase, background: s.adminTab === 'turnout' ? white : 'transparent', color: s.adminTab === 'turnout' ? navy : white },
+      onAdminTabCreate: () => this.setState({ adminTab: 'create' }),
+      onAdminTabTurnout: () => this.setState({ adminTab: 'turnout' }),
+      isAdminCreate: s.adminTab === 'create', isAdminTurnout: s.adminTab === 'turnout',
+      justCreated: s.justCreated,
+      admin,
+      onAdminTitleChange: e => this.setState(st => ({ admin: { ...st.admin, title: e.target.value } })),
+      onAdminStartChange: e => this.setState(st => ({ admin: { ...st.admin, startDate: e.target.value } })),
+      onAdminEndChange: e => this.setState(st => ({ admin: { ...st.admin, endDate: e.target.value } })),
+      onAddPosition: () => this.setState(st => ({ admin: { ...st.admin, positions: [...st.admin.positions, { id: this.genId(), title: '', candidates: [{ id: this.genId(), name: '', manifesto: '' }] }] } })),
+      onSubmitElection: () => { this.setState({ justCreated: true }); setTimeout(() => this.setState({ justCreated: false }), 3000); },
+      departments,
+    };
+  }
+}
+
+</script>
+</body>
+</html>

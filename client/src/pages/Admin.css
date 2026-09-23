@@ -1,0 +1,337 @@
+.sdec-admin-login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--sdec-bg);
+  padding: 24px;
+}
+
+.sdec-admin-login-card {
+  width: 100%;
+  max-width: 360px;
+  background: var(--sdec-white);
+  border-radius: 18px;
+  padding: 28px 24px;
+  border: 1px solid var(--sdec-border);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
+}
+
+.sdec-admin-login-eyebrow {
+  font-size: 12px;
+  letter-spacing: 1.2px;
+  color: var(--sdec-muted);
+  text-transform: uppercase;
+}
+
+.sdec-admin-login-title {
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--sdec-ink);
+  margin: 4px 0 18px;
+}
+
+.sdec-admin-page {
+  min-height: 100vh;
+  background: var(--sdec-bg);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 48px 24px;
+}
+
+.sdec-admin-card {
+  width: 100%;
+  max-width: 900px;
+  background: var(--sdec-white);
+  border-radius: 18px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+  border: 1px solid var(--sdec-border);
+}
+
+.sdec-admin-header {
+  background: var(--sdec-navy);
+  padding: 26px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.sdec-admin-eyebrow {
+  font-size: 12px;
+  letter-spacing: 1.2px;
+  color: oklch(80% 0.01 262);
+  text-transform: uppercase;
+}
+
+.sdec-admin-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--sdec-white);
+  margin-top: 4px;
+}
+
+.sdec-admin-tabs {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.sdec-admin-tab {
+  padding: 9px 16px;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--sdec-white);
+  transition: all 0.15s ease;
+}
+
+.sdec-admin-tab.active {
+  background: var(--sdec-white);
+  color: var(--sdec-navy);
+}
+
+.sdec-admin-signout {
+  color: oklch(80% 0.01 262);
+}
+
+.sdec-admin-body {
+  padding: 28px 32px 36px;
+}
+
+.sdec-admin-banner {
+  background: oklch(94% 0.035 175);
+  color: oklch(35% 0.08 175);
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 13.5px;
+  font-weight: 600;
+  margin-bottom: 18px;
+}
+
+.sdec-admin-form-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.sdec-admin-field-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--sdec-muted);
+  margin-bottom: 6px;
+}
+
+.sdec-admin-input {
+  width: 100%;
+  padding: 11px 13px;
+  border-radius: 9px;
+  border: 1.5px solid var(--sdec-border);
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--sdec-ink);
+  background: var(--sdec-white);
+}
+
+.sdec-admin-select {
+  max-width: 360px;
+}
+
+.sdec-admin-input-bold {
+  font-weight: 600;
+  font-size: 13.5px;
+}
+
+.sdec-admin-section-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.sdec-admin-section-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--sdec-navy);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.sdec-admin-link {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--sdec-teal);
+  cursor: pointer;
+}
+
+.sdec-admin-positions {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.sdec-admin-position-card {
+  border: 1px solid var(--sdec-border);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.sdec-admin-position-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.sdec-admin-position-row .sdec-admin-input {
+  flex: 1;
+}
+
+.sdec-admin-remove {
+  font-size: 12px;
+  color: var(--sdec-warn);
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+.sdec-admin-candidates {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sdec-admin-candidate-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  background: var(--sdec-offwhite);
+  border-radius: 8px;
+  padding: 8px;
+}
+
+.sdec-admin-candidate-name {
+  width: 160px;
+  flex-shrink: 0;
+  padding: 7px 9px;
+  font-size: 13px;
+}
+
+.sdec-admin-candidate-manifesto {
+  flex: 1;
+  padding: 7px 9px;
+  font-size: 13px;
+}
+
+.sdec-admin-remove-x {
+  font-size: 11.5px;
+  color: var(--sdec-warn);
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.sdec-admin-submit-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 24px;
+}
+
+.sdec-admin-submit-btn {
+  padding: 13px 26px;
+  background: var(--sdec-navy);
+  color: var(--sdec-white);
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.sdec-admin-turnout-picker-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+
+.sdec-admin-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.sdec-admin-stat-card {
+  background: oklch(94.5% 0.008 85);
+  border-radius: 12px;
+  padding: 18px;
+}
+
+.sdec-admin-stat-card-teal {
+  background: oklch(94% 0.035 175);
+}
+
+.sdec-admin-stat-card-teal .sdec-admin-stat-label,
+.sdec-admin-stat-card-teal .sdec-admin-stat-value {
+  color: oklch(35% 0.08 175);
+}
+
+.sdec-admin-stat-label {
+  font-size: 11.5px;
+  color: var(--sdec-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.sdec-admin-stat-value {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--sdec-ink);
+  margin-top: 6px;
+  font-variant-numeric: tabular-nums;
+}
+
+.sdec-admin-departments {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sdec-admin-dept-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+
+.sdec-admin-dept-name {
+  font-size: 13px;
+  color: var(--sdec-ink);
+  font-weight: 600;
+}
+
+.sdec-admin-dept-label {
+  font-size: 12.5px;
+  color: var(--sdec-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.sdec-admin-dept-track {
+  height: 8px;
+  background: oklch(92% 0.006 85);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.sdec-admin-dept-fill {
+  height: 100%;
+  background: var(--sdec-teal);
+  border-radius: 5px;
+}
