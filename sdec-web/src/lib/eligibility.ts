@@ -6,6 +6,30 @@ export interface Eligibility {
   sections?: string[];
 }
 
+export interface VoterEligibilityInput {
+  department: string;
+  year: number;
+  section: string | null;
+}
+
+/** Mirrors the `is_eligible` SQL function (supabase/migrations) exactly —
+ * used client/server-side to decide which elections/positions to show a
+ * given voter, before the same rule is re-checked authoritatively inside
+ * `cast_ballot`. */
+export function isEligible(
+  eligibility: Eligibility | null | undefined,
+  voter: VoterEligibilityInput,
+): boolean {
+  if (!eligibility) return true;
+
+  const deptOk = !eligibility.departments?.length || eligibility.departments.includes(voter.department);
+  const yearOk = !eligibility.years?.length || eligibility.years.includes(voter.year);
+  const sectionOk =
+    !eligibility.sections?.length || (voter.section !== null && eligibility.sections.includes(voter.section));
+
+  return deptOk && yearOk && sectionOk;
+}
+
 export function describeEligibility(eligibility: Eligibility | null | undefined): string {
   if (!eligibility) return "All eligible voters";
 

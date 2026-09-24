@@ -131,3 +131,26 @@
     font-variant-numeric: tabular-nums;
   }
 }
+
+/* Receipt screen's one-time confetti burst (§8: "Light confetti, only once"). */
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-12px) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(140px) rotate(220deg);
+    opacity: 0;
+  }
+}
+
+.animate-confetti-fall {
+  animation: confetti-fall 900ms ease-out forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-confetti-fall {
+    animation: none;
+    display: none;
+  }
+}
