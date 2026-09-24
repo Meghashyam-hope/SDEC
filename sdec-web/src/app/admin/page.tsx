@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getCurrentProfile } from "@/lib/auth";
+import Link from "next/link";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { Button } from "@/components/ui/button";
 import { signOut } from "@/actions/auth";
@@ -30,10 +31,14 @@ export default async function AdminOverviewPage() {
         </p>
       </div>
 
-      <div className="mt-8 rounded-2xl border border-dashed border-border bg-surface-2/40 px-6 py-10 text-center">
+      <div className="mt-8 flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border bg-surface-2/40 px-6 py-10 text-center">
         <p className="text-sm text-ink-2">
-          Election cards, turnout and recent audit entries land here in Phase 3.
+          Turnout cards and recent audit entries land here in a later phase — for now, build and run
+          elections from the Elections tab.
         </p>
+        <Button size="sm" render={<Link href="/admin/elections" />} nativeButton={false}>
+          Go to Elections
+        </Button>
       </div>
     </AdminShell>
   );

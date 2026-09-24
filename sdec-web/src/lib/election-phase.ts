@@ -54,6 +54,21 @@ export function electionPhase(
   return "ended";
 }
 
+/** Once an election is live or past it, structural fields (schedule,
+ * positions, candidates, eligibility) lock — only the description and
+ * manifesto typos can still change (SDEC_PLAN §10 Phase 3). */
+const STRUCTURAL_LOCK_PHASES = new Set<ElectionPhase>([
+  "live",
+  "paused",
+  "ended",
+  "results",
+  "cancelled",
+]);
+
+export function isStructurallyLocked(phase: ElectionPhase): boolean {
+  return STRUCTURAL_LOCK_PHASES.has(phase);
+}
+
 export const PHASE_LABEL: Record<ElectionPhase, string> = {
   draft: "Draft",
   cancelled: "Cancelled",
