@@ -192,3 +192,67 @@ export async function searchVotersForCandidate(query: string): Promise<VoterSear
 
   return data ?? [];
 }
+
+/** Approve a pending (or previously rejected) nomination — SDEC_PLAN §10
+ * Phase 6. Only `approved` candidates ever appear publicly or on the
+ * ballot (candidates_select RLS). */
+export async function approveCandidate(id: string, positionId: string): Promise<CandidateActionResult> {
+  const user = await requireOfficerOrAdmin();
+  if (!user) return { ok: false, error: "Not authorized" };
+
+  const supabase = await createClient();
+  const electionId = await getElectionIdForPosition(supabase, positionId);
+  if (!electionId) return { ok: false, error: "Position not found" };
+  const lockError = await assertEditable(supabase, electionId);
+  if (lockError) return { ok: false, error: lockError };
+
+  const { error } = await supabase
+    .from("candidates")
+    .update({ status: "approved", rejection_reason: null })
+    .eq("id", id);
+  if (error) return { ok: false, error: error.message };
+
+  await supabase.rpc("write_audit_log", {
+    p_action: "candidate.approve",
+    p_entity: "candidates",
+    p_entity_id: id,
+    p_meta: { position_id: positionId },
+  });
+
+  revalidatePath(`/admin/elections/${electionId}`);
+  return { ok: true, id };
+}
+
+/** Reject a nomination with a reason the applicant can see on their
+ * dashboard (SDEC_PLAN §10 Phase 6). */
+export async function rejectCandidate(
+  id: string,
+  positionId: string,
+  reason: string,
+): Promise<CandidateActionResult> {
+  const user = await requireOfficerOrAdmin();
+  if (!user) return { ok: false, error: "Not authorized" };
+  if (!reason.trim()) return { ok: false, error: "A reason is required" };
+
+  const supabase = await createClient();
+  const electionId = await getElectionIdForPosition(supabase, positionId);
+  if (!electionId) return { ok: false, error: "Position not found" };
+  const lockError = await assertEditable(supabase, electionId);
+  if (lockError) return { ok: false, error: lockError };
+
+  const { error } = await supabase
+    .from("candidates")
+    .update({ status: "rejected", rejection_reason: reason.trim() })
+    .eq("id", id);
+  if (error) return { ok: false, error: error.message };
+
+  await supabase.rpc("write_audit_log", {
+    p_action: "candidate.reject",
+    p_entity: "candidates",
+    p_entity_id: id,
+    p_meta: { position_id: positionId, reason: reason.trim() },
+  });
+
+  revalidatePath(`/admin/elections/${electionId}`);
+  return { ok: true, id };
+}

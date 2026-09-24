@@ -3,7 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { AppHeader } from "@/components/AppHeader";
 import { getBallotPositions } from "@/lib/ballot-positions";
 import { resolveVoteAccess, voteGuardCopy } from "@/lib/vote-access";
-import { VoteGuard } from "./VoteGuard";
+import { StatusGuard } from "@/components/election/StatusGuard";
 import { BallotStepper } from "./BallotStepper";
 
 export const metadata: Metadata = {
@@ -25,7 +25,7 @@ export default async function VotePage({
     if (access.reason === "signed_out") redirect(`/login?next=/vote/${slug}`);
     if (access.reason === "not_found") notFound();
     const copy = voteGuardCopy(access)!;
-    return <VoteGuard displayName={copy.displayName} title={copy.title} message={copy.message} />;
+    return <StatusGuard displayName={copy.displayName} title={copy.title} message={copy.message} />;
   }
 
   const { voter, election } = access;
@@ -37,7 +37,7 @@ export default async function VotePage({
 
   if (positions.length === 0) {
     return (
-      <VoteGuard
+      <StatusGuard
         displayName={voter.full_name}
         title={election.title}
         message="There's nothing on the ballot for you in this election."

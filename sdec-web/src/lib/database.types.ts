@@ -153,6 +153,7 @@ export type Database = {
           manifesto: string | null
           photo_path: string | null
           position_id: string
+          rejection_reason: string | null
           sort_order: number
           status: Database["public"]["Enums"]["candidate_status"]
           tagline: string | null
@@ -164,6 +165,7 @@ export type Database = {
           manifesto?: string | null
           photo_path?: string | null
           position_id: string
+          rejection_reason?: string | null
           sort_order?: number
           status?: Database["public"]["Enums"]["candidate_status"]
           tagline?: string | null
@@ -175,6 +177,7 @@ export type Database = {
           manifesto?: string | null
           photo_path?: string | null
           position_id?: string
+          rejection_reason?: string | null
           sort_order?: number
           status?: Database["public"]["Enums"]["candidate_status"]
           tagline?: string | null

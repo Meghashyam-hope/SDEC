@@ -2,15 +2,16 @@ import Link from "next/link";
 import { AppHeader } from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
 
-export interface VoteGuardProps {
+export interface StatusGuardProps {
   displayName?: string;
   title: string;
   message: string;
 }
 
-/** The calm "you can't vote right now" screen — not eligible, already
- * voted, not live, paused, etc (SDEC_PLAN §10 Phase 4 guard states). */
-function VoteGuard({ displayName, title, message }: VoteGuardProps) {
+/** The calm "you can't do that right now" screen — not eligible, already
+ * voted, not live, nominations closed, etc. Shared by the vote flow
+ * (SDEC_PLAN §10 Phase 4) and nominations (Phase 6). */
+function StatusGuard({ displayName, title, message }: StatusGuardProps) {
   return (
     <div className="flex min-h-dvh flex-col bg-background">
       <AppHeader session={displayName ? { displayName, href: "/dashboard" } : null} />
@@ -25,4 +26,4 @@ function VoteGuard({ displayName, title, message }: VoteGuardProps) {
   );
 }
 
-export { VoteGuard };
+export { StatusGuard };

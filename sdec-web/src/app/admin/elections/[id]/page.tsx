@@ -18,6 +18,7 @@ import type { CandidateData } from "./CandidateList";
 import { ElectionControls } from "./ElectionControls";
 import { TurnoutPanel } from "./TurnoutPanel";
 import { ResultsPanel } from "./ResultsPanel";
+import { NominationsPanel, type NominationItem } from "./NominationsPanel";
 
 export const metadata: Metadata = {
   title: "Election",
@@ -31,7 +32,7 @@ interface RawPosition {
   max_choices: number;
   eligibility: Eligibility;
   sort_order: number;
-  candidates: (CandidateData & { sort_order: number })[];
+  candidates: (CandidateData & { sort_order: number; rejection_reason: string | null })[];
 }
 
 export default async function ElectionDetailPage({
@@ -50,7 +51,7 @@ export default async function ElectionDetailPage({
   const { data: positionsData } = await supabase
     .from("positions")
     .select(
-      "id, title, description, seats, max_choices, eligibility, sort_order, candidates(id, display_name, tagline, manifesto, photo_path, status, voter_id, sort_order)",
+      "id, title, description, seats, max_choices, eligibility, sort_order, candidates(id, display_name, tagline, manifesto, photo_path, status, voter_id, sort_order, rejection_reason)",
     )
     .eq("election_id", id)
     .order("sort_order");
@@ -63,6 +64,21 @@ export default async function ElectionDetailPage({
       ...p,
       candidates: [...p.candidates].sort((a, b) => a.sort_order - b.sort_order),
     }));
+
+  const nominations: NominationItem[] = positions.flatMap((p) =>
+    p.candidates
+      .filter((c) => c.voter_id !== null)
+      .map((c) => ({
+        id: c.id,
+        positionId: p.id,
+        positionTitle: p.title,
+        displayName: c.display_name,
+        tagline: c.tagline,
+        photoPath: c.photo_path,
+        status: c.status,
+        rejectionReason: c.rejection_reason,
+      })),
+  );
 
   const { departments, sections } = await getVoterFacets();
   const phase = electionPhase(election);
@@ -97,6 +113,7 @@ export default async function ElectionDetailPage({
           <TabsList>
             <TabsTrigger value="details">Details</TabsTrigger>
             <TabsTrigger value="positions">Positions &amp; candidates</TabsTrigger>
+            <TabsTrigger value="nominations">Nominations</TabsTrigger>
             <TabsTrigger value="turnout">Turnout</TabsTrigger>
             <TabsTrigger value="results">Results</TabsTrigger>
             <TabsTrigger value="controls">Publish &amp; controls</TabsTrigger>
@@ -130,6 +147,10 @@ export default async function ElectionDetailPage({
               sections={sections}
               locked={locked}
             />
+          </TabsContent>
+
+          <TabsContent value="nominations" className="pt-4">
+            <NominationsPanel items={nominations} locked={locked} />
           </TabsContent>
 
           <TabsContent value="turnout" className="pt-4">

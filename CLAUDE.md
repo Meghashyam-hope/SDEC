@@ -147,6 +147,31 @@ Workflow used for Phase 1, and the one to keep using until Docker exists:
   `nativeButton={false}` too — same Base UI rule as any other non-`<button>`
   render target.
 
+## Phase 6 gotchas
+- **This cloud session's network policy blocks `*.supabase.co` entirely**
+  (not just `api.supabase.com`), so `supabase db push`/`gen types` can't
+  reach the hosted project from here at all — worse than earlier phases'
+  "no Docker" limitation. `supabase/migrations/20260924000012_nominations.sql`
+  (adds `candidates.rejection_reason` + a `candidates_select_own` RLS
+  policy + a `(position_id, voter_id)` unique index) has **not been run
+  against the hosted DB** — it needs to be pasted into the Supabase
+  Dashboard's SQL Editor by hand. `src/lib/database.types.ts`'s
+  `candidates` entry was **manually patched** to add `rejection_reason`
+  (matching the migration) since `gen types` can't run here either —
+  regenerate it for real
+  (`supabase gen types typescript --linked > src/lib/database.types.ts`)
+  once either the migration has actually been applied or network access
+  allows running it from this session.
+- **RLS SELECT policies are OR'd**, not replaced — `candidates_select_own`
+  was added as a *second* permissive policy alongside the existing
+  `candidates_select` (20260924000005_rls.sql) specifically so a student
+  can see their own `pending`/`rejected` nomination without weakening the
+  "only `approved` + published" rule everyone else is still bound by.
+- **`write_audit_log` rejects non-officers** (`is_officer_or_admin()`
+  check inside the function itself) — a student's own
+  `submitNomination()` call can't audit-log itself even if we wanted it
+  to. Only the admin/officer approve/reject actions are audit-logged.
+
 ## Hard rules
 1. Votes are written **only** by the `cast_ballot` Postgres function.
 2. Never store, join or log voter identity together with ballot choices.

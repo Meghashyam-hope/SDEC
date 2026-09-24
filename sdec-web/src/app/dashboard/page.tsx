@@ -37,14 +37,24 @@ function toCardItem(election: ElectionRow, phase: ElectionPhase, voted: boolean)
         : null;
   const canVoteNow = phase === "live" && !voted;
 
+  let ctaHref = `/elections/${election.slug}`;
+  let ctaLabel = "View details";
+  if (canVoteNow) {
+    ctaHref = `/vote/${election.slug}`;
+    ctaLabel = "Vote now";
+  } else if (phase === "nominations") {
+    ctaHref = `/nominate/${election.slug}`;
+    ctaLabel = "Apply now";
+  }
+
   return {
     id: election.id,
     title: election.title,
     phase,
     countdownTarget,
     voted,
-    ctaHref: canVoteNow ? `/vote/${election.slug}` : `/elections/${election.slug}`,
-    ctaLabel: canVoteNow ? "Vote now" : "View details",
+    ctaHref,
+    ctaLabel,
   };
 }
 
