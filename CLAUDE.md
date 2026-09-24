@@ -114,16 +114,27 @@ this change for the conversation. What's true now:
   (`src/actions/auth.ts` — `signInStudent`/`signInAdmin`, both call
   `supabase.auth.signInWithPassword`). `AUTH_DEV_BYPASS` is gone — there's
   no dev/prod branch to maintain anymore.
-- **Passwords are provisioned, not self-chosen.** There's no signup form.
-  An admin/officer action creates the `auth.users` row directly via the
+- **Passwords are provisioned by an admin by default**, via the
   service-role client's `admin.auth.admin.createUser({email, password,
   email_confirm:true})` (voter roll CSV import for new voters —
   `actions/voters.ts` — and `/admin/team` promotion for officers/admins
-  without a login yet — `actions/team.ts`) or resets one
+  without a login yet — `actions/team.ts`) or reset
   (`admin.auth.admin.updateUserById(id, {password})` —
   `resetVoterPassword`). The generated password is returned once, shown
   in the UI (and, for CSV import, downloadable as a CSV) — there is no
-  other record of it; if it's lost, use "Reset password".
+  other record of it.
+- **`/signup` (`claimVoterAccount` in `actions/auth.ts`) is the
+  self-service alternative**, added after voters found "wait for the
+  admin to hand me a password" too much friction. A voter proves it's
+  really them with roll number + the `voters.phone` value from CSV import
+  (the only per-voter secret-ish field that already existed — adding one
+  would've needed a migration) and picks their own password. Same
+  function handles both first-time setup (no `user_id` yet → `createUser`)
+  and "forgot password" (`user_id` already set → `updateUserById`) since
+  the identity check is identical either way, then signs them in
+  immediately. A voter with no phone on file can't use this — falls back
+  to an admin's "Reset password". Reuses `lookup_voter_for_login` purely
+  for its rate-limit side effect, same as `signInStudent`.
 - **`handle_new_auth_user()` (20260924000010) didn't need to change at
   all.** It fires on any `auth.users` insert regardless of how the row
   got there — OTP magic-link, `admin.createUser`, real signup — and links

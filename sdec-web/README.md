@@ -64,21 +64,28 @@ Realtime) · Tailwind CSS + shadcn/ui (Base UI) · Zod · Vercel.
 ## Authentication
 
 Login is roll number (or email) + a password — no OTP, no SMTP/SMS.
-Passwords are never self-set by signing up; an admin/officer provisions
-them:
+Passwords can come from either side:
 
-- **Students**: get a password automatically the first time they're
-  imported via `/admin/voters` → Import CSV. The generated password is
-  shown once (and downloadable as a CSV) for the commission to hand out
-  out-of-band — there's no email delivery in this design. Existing
-  students can get a new one anytime via "Reset password" on their row.
-- **Officers/admins**: get a password automatically when an admin
-  promotes them from `/admin/team` (if they don't already have a login),
-  shown once the same way.
+- **Self-service (`/signup`)**: a student enters their roll number and
+  the **phone number on file** (from the CSV import) and picks their own
+  password — no admin involved. The same form also works as "forgot
+  password", since proving phone+roll again is the same check either
+  way. Requires the voter's roll had a phone number in the import; if not,
+  they'll need an admin's help instead (see "Reset password" below).
+- **Admin-provisioned**: an admin/officer can also set a password
+  directly:
+  - **Students**: get a password automatically the first time they're
+    imported via `/admin/voters` → Import CSV. The generated password is
+    shown once (and downloadable as a CSV) for the commission to hand out
+    out-of-band. Existing students can get a new one anytime via "Reset
+    password" on their row.
+  - **Officers/admins**: get a password automatically when an admin
+    promotes them from `/admin/team` (if they don't already have a
+    login), shown once the same way.
 
-This trades off "no delivery infrastructure needed" for "the commission
-must actually hand out these passwords" — appropriate for a small
-college election, not for a fully self-service deployment.
+There's still no email/SMS delivery anywhere in this design — the
+commission (or the student themselves, via `/signup`) is always the one
+who ends up knowing a password, not this app sending it anywhere.
 
 ## Making the first admin
 
