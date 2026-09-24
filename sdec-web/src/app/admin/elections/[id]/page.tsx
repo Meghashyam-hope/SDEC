@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { getCurrentProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { getVoterFacets } from "@/actions/elections";
+import { getElectionResults, getElectionTurnout } from "@/actions/results";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { Button } from "@/components/ui/button";
 import { PhaseBadge } from "@/components/election/PhaseBadge";
@@ -15,6 +16,8 @@ import type { Eligibility } from "@/lib/eligibility";
 import { PositionsEditor } from "./PositionsEditor";
 import type { CandidateData } from "./CandidateList";
 import { ElectionControls } from "./ElectionControls";
+import { TurnoutPanel } from "./TurnoutPanel";
+import { ResultsPanel } from "./ResultsPanel";
 
 export const metadata: Metadata = {
   title: "Election",
@@ -65,6 +68,10 @@ export default async function ElectionDetailPage({
   const phase = electionPhase(election);
   const locked = isStructurallyLocked(phase);
 
+  const turnoutResult = await getElectionTurnout(election.id);
+  const resultsResult = await getElectionResults(election.id);
+  const canPublishResults = (phase === "ended" || phase === "results") && !election.results_published_at;
+
   return (
     <AdminShell
       actions={
@@ -90,6 +97,8 @@ export default async function ElectionDetailPage({
           <TabsList>
             <TabsTrigger value="details">Details</TabsTrigger>
             <TabsTrigger value="positions">Positions &amp; candidates</TabsTrigger>
+            <TabsTrigger value="turnout">Turnout</TabsTrigger>
+            <TabsTrigger value="results">Results</TabsTrigger>
             <TabsTrigger value="controls">Publish &amp; controls</TabsTrigger>
           </TabsList>
 
@@ -121,6 +130,30 @@ export default async function ElectionDetailPage({
               sections={sections}
               locked={locked}
             />
+          </TabsContent>
+
+          <TabsContent value="turnout" className="pt-4">
+            {turnoutResult.ok ? (
+              <TurnoutPanel electionId={election.id} initial={turnoutResult.data} />
+            ) : (
+              <p className="text-sm text-caption">{turnoutResult.error}</p>
+            )}
+          </TabsContent>
+
+          <TabsContent value="results" className="pt-4">
+            {resultsResult.ok && turnoutResult.ok ? (
+              <ResultsPanel
+                electionId={election.id}
+                slug={election.slug}
+                results={resultsResult.data}
+                turnout={turnoutResult.data}
+                canPublish={canPublishResults}
+              />
+            ) : (
+              <p className="text-sm text-caption">
+                {!resultsResult.ok ? resultsResult.error : "Turnout data isn't available yet."}
+              </p>
+            )}
           </TabsContent>
 
           <TabsContent value="controls" className="pt-4">

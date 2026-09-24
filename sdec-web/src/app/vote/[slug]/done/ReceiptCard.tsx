@@ -111,6 +111,8 @@ function ReceiptCard({ slug, electionTitle }: ReceiptCardProps) {
 
       <p className="text-xs text-caption">
         Votes are secret. No one, including the commission, can see who you voted for.
+        <br />
+        Verify anytime at <Link href="/verify" className="text-teal underline-offset-2 hover:underline">/verify</Link>.
       </p>
 
       <Button render={<Link href="/dashboard" />} nativeButton={false} className="w-full">
