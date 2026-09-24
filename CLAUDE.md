@@ -3,7 +3,7 @@
 We are rebuilding SDEC (Student Digital Election Commission) as a **Next.js + Supabase + Vercel** app in `sdec-web/`.
 
 - **Spec & phases:** `docs/SDEC_PLAN.md`. Read it fully before any work. Build one phase at a time and stop for review at the end of each phase.
-- **Old code:** `client/` (React/Vite) and `server/` (Express/MySQL) are reference only, for flows and seed data. Don't copy their architecture (no Express, MySQL, Socket.IO or node-cron).
+- **Old code:** the pre-rebuild `client/` (React/Vite) and `server/` (Express/MySQL) were deleted in Phase 7 once `sdec-web/` reached parity. Still in git history if a flow or seed value needs double-checking, but don't recreate them or copy their architecture (no Express, MySQL, Socket.IO or node-cron).
 - **Old design mockup:** `design-handoff/sdec-student-election-ui/project/SDEC.dc.html`. It's reference for flows and the teal/navy identity. The new visual system is §8 of the plan.
 
 ## Commands (inside sdec-web/)
