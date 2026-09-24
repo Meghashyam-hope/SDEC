@@ -78,7 +78,13 @@ function CandidateList({ positionId, candidates, locked }: CandidateListProps) {
               ) : null}
               {!locked ? (
                 <div className="flex shrink-0 items-center gap-0.5">
-                  <Button variant="ghost" size="icon-xs" onClick={() => move(index, -1)} disabled={index === 0}>
+                  <Button
+                    variant="ghost"
+                    size="icon-xs"
+                    onClick={() => move(index, -1)}
+                    disabled={index === 0}
+                    aria-label={`Move ${candidate.display_name} up`}
+                  >
                     <ChevronUp />
                   </Button>
                   <Button
@@ -86,12 +92,13 @@ function CandidateList({ positionId, candidates, locked }: CandidateListProps) {
                     size="icon-xs"
                     onClick={() => move(index, 1)}
                     disabled={index === candidates.length - 1}
+                    aria-label={`Move ${candidate.display_name} down`}
                   >
                     <ChevronDown />
                   </Button>
                   <CandidateFormDialog
                     positionId={positionId}
-                    triggerRender={<Button variant="ghost" size="icon-xs" />}
+                    triggerRender={<Button variant="ghost" size="icon-xs" aria-label={`Edit ${candidate.display_name}`} />}
                     triggerLabel={<Pencil />}
                     initial={{
                       id: candidate.id,
@@ -102,7 +109,12 @@ function CandidateList({ positionId, candidates, locked }: CandidateListProps) {
                       photo_path: candidate.photo_path,
                     }}
                   />
-                  <Button variant="ghost" size="icon-xs" onClick={() => handleDelete(candidate)}>
+                  <Button
+                    variant="ghost"
+                    size="icon-xs"
+                    onClick={() => handleDelete(candidate)}
+                    aria-label={`Remove ${candidate.display_name}`}
+                  >
                     <Trash2 />
                   </Button>
                 </div>

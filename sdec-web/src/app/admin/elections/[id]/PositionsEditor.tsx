@@ -88,6 +88,7 @@ function PositionsEditor({ electionId, positions, departments, sections, locked 
                         size="icon-xs"
                         onClick={() => move(index, -1)}
                         disabled={index === 0}
+                        aria-label={`Move ${position.title} up`}
                       >
                         <ChevronUp />
                       </Button>
@@ -96,6 +97,7 @@ function PositionsEditor({ electionId, positions, departments, sections, locked 
                         size="icon-xs"
                         onClick={() => move(index, 1)}
                         disabled={index === positions.length - 1}
+                        aria-label={`Move ${position.title} down`}
                       >
                         <ChevronDown />
                       </Button>
@@ -103,7 +105,7 @@ function PositionsEditor({ electionId, positions, departments, sections, locked 
                         electionId={electionId}
                         departments={departments}
                         sections={sections}
-                        triggerRender={<Button variant="ghost" size="icon-xs" />}
+                        triggerRender={<Button variant="ghost" size="icon-xs" aria-label={`Edit ${position.title}`} />}
                         triggerLabel={<Pencil />}
                         initial={{
                           id: position.id,
@@ -114,7 +116,12 @@ function PositionsEditor({ electionId, positions, departments, sections, locked 
                           eligibility: position.eligibility,
                         }}
                       />
-                      <Button variant="ghost" size="icon-xs" onClick={() => handleDelete(position)}>
+                      <Button
+                        variant="ghost"
+                        size="icon-xs"
+                        onClick={() => handleDelete(position)}
+                        aria-label={`Delete ${position.title}`}
+                      >
                         <Trash2 />
                       </Button>
                     </div>

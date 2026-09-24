@@ -1,8 +1,23 @@
 "use server";
 
+import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import type { Json } from "@/lib/database.types";
+
+const selectionSchema = z.object({
+  position_id: z.string().uuid(),
+  is_nota: z.boolean(),
+  candidate_ids: z.array(z.string().uuid()),
+});
+
+/**
+ * Only a shallow shape check — `cast_ballot` is the actual authority on
+ * every real rule (phase, eligibility, one selection per eligible
+ * position, max_choices, NOTA exclusivity, candidate ownership). This
+ * just rejects garbage before it reaches the DB round trip.
+ */
+const castBallotSchema = z.array(selectionSchema).min(1);
 
 export interface CastBallotSelection {
   position_id: string;
@@ -41,6 +56,9 @@ export async function castBallot(
   slug: string,
   selections: CastBallotSelection[],
 ): Promise<CastBallotResult> {
+  const parsed = castBallotSchema.safeParse(selections);
+  if (!parsed.success) return { ok: false, error: "Your selections didn't match what was expected — please review and try again." };
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -56,7 +74,7 @@ export async function castBallot(
 
   const { data: receiptCode, error } = await supabase.rpc("cast_ballot", {
     p_election: election.id,
-    p_selections: selections as unknown as Json,
+    p_selections: parsed.data as unknown as Json,
   });
 
   if (error || !receiptCode) return { ok: false, error: friendlyError(error?.message) };

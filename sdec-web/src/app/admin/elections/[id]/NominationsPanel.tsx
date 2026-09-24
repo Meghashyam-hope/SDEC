@@ -104,6 +104,7 @@ function NominationsPanel({ items, locked }: NominationsPanelProps) {
                     variant="outline"
                     onClick={() => handleApprove(item)}
                     disabled={pendingId === item.id}
+                    aria-label={`Approve ${item.displayName}`}
                   >
                     <Check />
                   </Button>
@@ -112,6 +113,7 @@ function NominationsPanel({ items, locked }: NominationsPanelProps) {
                     variant="outline"
                     onClick={() => setRejecting(item)}
                     disabled={pendingId === item.id}
+                    aria-label={`Reject ${item.displayName}`}
                   >
                     <X />
                   </Button>

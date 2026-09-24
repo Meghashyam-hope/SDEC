@@ -19,13 +19,28 @@ const fraunces = Fraunces({
   weight: ["500", "600"],
 });
 
+const SITE_NAME = "SDEC — Student Digital Election Commission";
+const SITE_DESCRIPTION =
+  "Secure, mobile-first student elections: register, vote once, and verify your ballot was counted without revealing your choice.";
+
 export const metadata: Metadata = {
+  metadataBase: process.env.NEXT_PUBLIC_SITE_URL ? new URL(process.env.NEXT_PUBLIC_SITE_URL) : undefined,
   title: {
-    default: "SDEC — Student Digital Election Commission",
+    default: SITE_NAME,
     template: "%s · SDEC",
   },
-  description:
-    "Secure, mobile-first student elections: register, vote once, and verify your ballot was counted without revealing your choice.",
+  description: SITE_DESCRIPTION,
+  openGraph: {
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+    siteName: "SDEC",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
