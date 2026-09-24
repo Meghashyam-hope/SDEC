@@ -96,14 +96,17 @@ function TeamManager({
     }
 
     setQuery("");
-    if (result.appliedImmediately) {
-      setCommission((prev) => [
-        ...prev,
-        { profileId: voter.id, displayName: voter.full_name, rollNumber: voter.roll_number, role },
-      ]);
-      toast.success(`${voter.full_name} is now an ${role}`);
+    setCommission((prev) => [
+      ...prev,
+      { profileId: voter.id, displayName: voter.full_name, rollNumber: voter.roll_number, role },
+    ]);
+
+    if (result.generatedPassword) {
+      toast.success(`${voter.full_name} is now an ${role} — password: ${result.generatedPassword}`, {
+        duration: 30000,
+      });
     } else {
-      toast.success(`${voter.full_name} will be an ${role} once they next sign in`);
+      toast.success(`${voter.full_name} is now an ${role}`);
     }
   }
 
@@ -157,8 +160,8 @@ function TeamManager({
       <section className="space-y-3">
         <h2 className="text-sm font-medium text-ink-2">Add to the commission</h2>
         <p className="text-xs text-caption">
-          Only current voters can be promoted. If they haven&apos;t signed in yet, the role
-          applies the next time they do.
+          Only current voters can be promoted. If they don&apos;t have a login yet, one is
+          created for them — the password shows once, so copy it before it disappears.
         </p>
         <Input
           placeholder="Search by name, roll number or email…"

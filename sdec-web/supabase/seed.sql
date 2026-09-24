@@ -3,10 +3,14 @@
 -- to a fresh hosted project). See docs/SDEC_PLAN.md Phase 1.
 --
 -- auth.users / auth.identities rows are hand-inserted for the admin and
--- officer only, so they can sign in immediately via email OTP without
--- going through the (Phase 2) first-login trigger. The 40 voters on the
--- roll are NOT pre-linked to auth accounts — that linking happens lazily
--- on first login, same as real students.
+-- officer only, with a real bcrypt password (login is roll number/email +
+-- password — no OTP/SMTP in this build; see CLAUDE.md). Dev password for
+-- both seeded accounts: "ChangeMe123!" — rotate it via /admin/team or
+-- `resetVoterPassword`-style admin API calls before any real use. The 40
+-- voters on the roll are NOT pre-linked to auth accounts or given a
+-- password here — provision those the normal way, via CSV import
+-- (actions/voters.ts generates one per new voter) or the "Reset password"
+-- action in /admin/voters for voters that predate that flow.
 
 -- ============================================================
 -- Admin + officer accounts
@@ -16,6 +20,7 @@ do $$
 declare
   v_admin_id uuid := gen_random_uuid();
   v_officer_id uuid := gen_random_uuid();
+  v_password text := extensions.crypt('ChangeMe123!', extensions.gen_salt('bf'));
 begin
   insert into auth.users (
     instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
@@ -24,13 +29,13 @@ begin
   ) values
     (
       '00000000-0000-0000-0000-000000000000', v_admin_id, 'authenticated', 'authenticated',
-      'kashyapmamidela@gmail.com', '', now(),
+      'kashyapmamidela@gmail.com', v_password, now(),
       '{"provider":"email","providers":["email"]}'::jsonb, '{}'::jsonb, now(), now(),
       '', '', '', ''
     ),
     (
       '00000000-0000-0000-0000-000000000000', v_officer_id, 'authenticated', 'authenticated',
-      'officer@sdec.test', '', now(),
+      'officer@sdec.test', v_password, now(),
       '{"provider":"email","providers":["email"]}'::jsonb, '{}'::jsonb, now(), now(),
       '', '', '', ''
     );

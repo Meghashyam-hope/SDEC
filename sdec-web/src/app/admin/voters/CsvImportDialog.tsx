@@ -17,8 +17,19 @@ import {
 } from "@/components/ui/dialog";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Download } from "lucide-react";
 import { CSV_COLUMNS, voterCsvRowSchema, type VoterCsvRow } from "@/lib/validators/voters";
-import { importVotersCsv } from "@/actions/voters";
+import { importVotersCsv, type IssuedCredential } from "@/actions/voters";
+
+function downloadCredentialsCsv(credentials: IssuedCredential[]) {
+  const rows = ["Roll number,Email,Password", ...credentials.map((c) => `${c.roll_number},${c.email},${c.password}`)];
+  const blob = new Blob([rows.join("\n")], { type: "text/csv" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "sdec-new-voter-logins.csv";
+  link.click();
+  URL.revokeObjectURL(link.href);
+}
 
 interface ParsedRow {
   row: number;
@@ -52,6 +63,7 @@ function CsvImportDialog() {
   const [open, setOpen] = React.useState(false);
   const [rows, setRows] = React.useState<ParsedRow[] | null>(null);
   const [importing, setImporting] = React.useState(false);
+  const [issuedCredentials, setIssuedCredentials] = React.useState<IssuedCredential[] | null>(null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const validCount = rows?.filter((r) => r.data).length ?? 0;
@@ -87,8 +99,8 @@ function CsvImportDialog() {
 
     if (result.failed.length === 0) {
       toast.success(`Imported ${result.imported} voter${result.imported === 1 ? "" : "s"}`);
-      setOpen(false);
       setRows(null);
+      setIssuedCredentials(result.credentials);
     } else {
       toast.warning(
         `Imported ${result.imported}, ${result.failed.length} failed — see details below.`,
@@ -99,6 +111,7 @@ function CsvImportDialog() {
           return failure ? { ...r, error: failure.error, data: null } : r;
         }),
       );
+      if (result.credentials.length > 0) setIssuedCredentials(result.credentials);
     }
   }
 
@@ -107,7 +120,10 @@ function CsvImportDialog() {
       open={open}
       onOpenChange={(next) => {
         setOpen(next);
-        if (!next) setRows(null);
+        if (!next) {
+          setRows(null);
+          setIssuedCredentials(null);
+        }
       }}
     >
       <DialogTrigger render={<Button variant="outline" size="sm" />}>
@@ -122,7 +138,47 @@ function CsvImportDialog() {
           </DialogDescription>
         </DialogHeader>
 
-        {!rows ? (
+        {issuedCredentials ? (
+          <div className="space-y-3">
+            {issuedCredentials.length === 0 ? (
+              <p className="text-sm text-ink-2">
+                No new logins to issue — every imported voter already had one.
+              </p>
+            ) : (
+              <>
+                <p className="text-sm text-ink-2">
+                  {issuedCredentials.length} new voter{issuedCredentials.length === 1 ? "" : "s"} got a login.
+                  These passwords are shown <span className="font-medium text-ink">once</span> — download
+                  them now to distribute out-of-band (there&apos;s no email/SMS in this build).
+                </p>
+                <Button size="sm" variant="outline" onClick={() => downloadCredentialsCsv(issuedCredentials)}>
+                  <Download data-icon="inline-start" />
+                  Download logins CSV
+                </Button>
+                <div className="max-h-64 overflow-y-auto rounded-lg border border-border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Roll number</TableHead>
+                        <TableHead>Email</TableHead>
+                        <TableHead>Password</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {issuedCredentials.map((c) => (
+                        <TableRow key={c.roll_number}>
+                          <TableCell>{c.roll_number}</TableCell>
+                          <TableCell className="text-ink-2">{c.email}</TableCell>
+                          <TableCell className="font-mono">{c.password}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </>
+            )}
+          </div>
+        ) : !rows ? (
           <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border bg-surface-2/40 px-6 py-10 text-center">
             <p className="text-sm text-ink-2">Choose a CSV file to preview it before importing.</p>
             <Button size="sm" onClick={() => fileInputRef.current?.click()}>
@@ -190,10 +246,16 @@ function CsvImportDialog() {
         )}
 
         <DialogFooter>
-          <DialogClose render={<Button variant="outline">Cancel</Button>} />
-          <Button onClick={handleConfirm} disabled={!rows || validCount === 0 || importing}>
-            {importing ? "Importing…" : `Import ${validCount || ""} voter${validCount === 1 ? "" : "s"}`}
-          </Button>
+          {issuedCredentials ? (
+            <DialogClose render={<Button>Done</Button>} />
+          ) : (
+            <>
+              <DialogClose render={<Button variant="outline">Cancel</Button>} />
+              <Button onClick={handleConfirm} disabled={!rows || validCount === 0 || importing}>
+                {importing ? "Importing…" : `Import ${validCount || ""} voter${validCount === 1 ? "" : "s"}`}
+              </Button>
+            </>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>

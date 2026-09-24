@@ -51,9 +51,7 @@ Realtime) · Tailwind CSS + shadcn/ui (Base UI) · Zod · Vercel.
 
 5. **Configure environment variables.** Copy `.env.local.example` to
    `.env.local` and fill in your project's values (Project Settings → API
-   for the URL/keys). Until custom SMTP is configured (see below), keep
-   `AUTH_DEV_BYPASS=true` — OTP codes are generated for real but shown
-   directly in the login UI instead of emailed.
+   for the URL/keys).
 
 6. **Run it**
 
@@ -63,27 +61,64 @@ Realtime) · Tailwind CSS + shadcn/ui (Base UI) · Zod · Vercel.
 
    Open http://localhost:3000.
 
+## Authentication
+
+Login is roll number (or email) + a password — no OTP, no SMTP/SMS.
+Passwords are never self-set by signing up; an admin/officer provisions
+them:
+
+- **Students**: get a password automatically the first time they're
+  imported via `/admin/voters` → Import CSV. The generated password is
+  shown once (and downloadable as a CSV) for the commission to hand out
+  out-of-band — there's no email delivery in this design. Existing
+  students can get a new one anytime via "Reset password" on their row.
+- **Officers/admins**: get a password automatically when an admin
+  promotes them from `/admin/team` (if they don't already have a login),
+  shown once the same way.
+
+This trades off "no delivery infrastructure needed" for "the commission
+must actually hand out these passwords" — appropriate for a small
+college election, not for a fully self-service deployment.
+
 ## Making the first admin
 
 The seed script (`supabase/seed.sql`) hand-creates a dev admin + officer
-account for local testing. For a **real deployment**, don't reuse that —
-instead:
+account for local testing, with the password `ChangeMe123!` — rotate it
+before any real use. For a **real deployment**, don't reuse that account;
+instead create the first admin directly in the Supabase Dashboard's SQL
+Editor:
 
-1. Have the person sign in once through the normal flow at `/admin/login`
-   (email OTP). This creates their `auth.users` row and, via the
-   first-login trigger, a `profiles` row with `role = 'student'`.
-2. Promote them to admin directly in the Supabase Dashboard's SQL Editor:
+```sql
+do $$
+declare
+  v_id uuid := gen_random_uuid();
+begin
+  -- 1. Create their auth account with a real password (pgcrypto's
+  --    crypt() matches Supabase Auth's bcrypt storage format):
+  insert into auth.users (
+    instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
+    raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
+    confirmation_token, recovery_token, email_change_token_new, email_change
+  ) values (
+    '00000000-0000-0000-0000-000000000000', v_id, 'authenticated', 'authenticated',
+    'their-email@example.com', extensions.crypt('a-real-temporary-password', extensions.gen_salt('bf')), now(),
+    '{"provider":"email","providers":["email"]}'::jsonb, '{}'::jsonb, now(), now(),
+    '', '', '', ''
+  );
 
-   ```sql
-   update profiles
-   set role = 'admin'
-   where id = (select id from auth.users where email = 'their-email@example.com');
-   ```
+  insert into auth.identities (id, user_id, provider_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
+  values (gen_random_uuid(), v_id, v_id::text, jsonb_build_object('sub', v_id::text, 'email', 'their-email@example.com'), 'email', now(), now(), now());
+end $$;
+
+-- 2. The on_auth_user_created trigger just created their profiles row
+--    with role='student' — promote it:
+update profiles set role = 'admin'
+where id = (select id from auth.users where email = 'their-email@example.com');
+```
 
 From there, that admin can promote others to officer/admin from
-`/admin/team` — including voters who haven't signed in yet (the promotion
-is staged on `voters.pending_role` and applied automatically on their
-first sign-in).
+`/admin/team`, which provisions a login for them automatically if they
+don't have one yet.
 
 ## Commands
 
@@ -104,15 +139,15 @@ considering any change done.
 
 Before real students vote on this:
 
-- [ ] **Custom SMTP.** Supabase's built-in email sender is for testing
-      only and heavily rate-limited. Configure a real provider (Resend,
-      Brevo, etc.) under Project Settings → Auth → SMTP, then set
-      `AUTH_DEV_BYPASS=false` (or unset it).
-- [ ] **OTP email template.** Under Auth → Email Templates, make sure the
-      "Magic Link" / OTP template sends the **code** (`{{ .Token }}`), not
-      just a clickable link — the login UI expects a 6-digit code.
-      (Template editing needs a paid tier or custom SMTP; the free tier's
-      default provider refuses any template changes.)
+- [ ] **A real plan for handing out passwords.** This build has no email/SMS
+      delivery — every generated password is shown once in the admin UI
+      (and exportable as a CSV for the whole voter roll). Decide how the
+      commission will actually get those to students (printed roster,
+      existing college systems, etc.) before importing the real roll.
+- [ ] **Rotate the seed admin/officer password** (`ChangeMe123!`) — see
+      "Making the first admin" below for the real-admin path; deactivate
+      or repassword the seeded `officer@sdec.test` account too if it was
+      ever created on your project.
 - [ ] **Vercel environment variables** — set all of `.env.local.example`'s
       keys in the Vercel project (Production + Preview), pointing at your
       **production** Supabase project, not a dev one.

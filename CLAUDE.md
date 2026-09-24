@@ -104,7 +104,63 @@ Workflow used for Phase 1, and the one to keep using until Docker exists:
   with shadcn's own `--muted` background token), `navy`, `teal`,
   `teal-tint`, `amber`, `amber-tint`, `red-c`, `red-tint`.
 
-## Phase 2 gotchas
+## Auth redesign: password login, not OTP (post-Phase-7 change)
+The plan's §5 (OTP-only) is **superseded**. The product decision was to
+drop email/SMS entirely rather than set up SMTP — see git history around
+this change for the conversation. What's true now:
+
+- **No `signInWithOtp`/`verifyOtp` anywhere.** Students sign in with roll
+  number *or* email + a password; officers/admins with email + password
+  (`src/actions/auth.ts` — `signInStudent`/`signInAdmin`, both call
+  `supabase.auth.signInWithPassword`). `AUTH_DEV_BYPASS` is gone — there's
+  no dev/prod branch to maintain anymore.
+- **Passwords are provisioned, not self-chosen.** There's no signup form.
+  An admin/officer action creates the `auth.users` row directly via the
+  service-role client's `admin.auth.admin.createUser({email, password,
+  email_confirm:true})` (voter roll CSV import for new voters —
+  `actions/voters.ts` — and `/admin/team` promotion for officers/admins
+  without a login yet — `actions/team.ts`) or resets one
+  (`admin.auth.admin.updateUserById(id, {password})` —
+  `resetVoterPassword`). The generated password is returned once, shown
+  in the UI (and, for CSV import, downloadable as a CSV) — there is no
+  other record of it; if it's lost, use "Reset password".
+- **`handle_new_auth_user()` (20260924000010) didn't need to change at
+  all.** It fires on any `auth.users` insert regardless of how the row
+  got there — OTP magic-link, `admin.createUser`, real signup — and links
+  `voters.user_id` + creates the `profiles` row the same way every time.
+  This is *why* switching auth methods was a pure application-layer
+  change with zero new migrations.
+- **`voters.pending_role` is now vestigial.** It existed to stage a
+  promotion for a voter who hadn't signed in yet (OTP was lazy — the
+  account only existed after their first login). Password auth
+  provisions the account immediately at CSV-import time, so there's
+  normally nothing to stage. The column is still read as a display
+  fallback in `/admin/team`'s `effectiveRole` for any pre-existing rows
+  that have it set, but nothing writes to it anymore.
+- **`lookup_voter_for_login` and its `login_lookup_attempts` throttle
+  table are reused, not replaced.** They predate this change (built for
+  "does this roll number exist, rate-limited" before sending an OTP), but
+  that's exactly the check a password login needs too — same throttle
+  now also guards against roll-number password-brute-forcing. Its
+  `masked_email` return field is simply unused now (the caller doesn't
+  need to show a masked email anywhere in a single-step password form).
+- **The seeded admin/officer accounts need a real password.** They used
+  to have `encrypted_password = ''` (OTP-only, unusable with
+  `signInWithPassword`). `supabase/seed.sql` now sets both to
+  `extensions.crypt('ChangeMe123!', extensions.gen_salt('bf'))` via
+  pgcrypto — matches Supabase Auth's own bcrypt storage format. Accounts
+  already created on a live project before this change need a one-off
+  `update auth.users set encrypted_password = extensions.crypt(...) where
+  email = ...` to get a working password (seed.sql itself isn't safely
+  re-runnable — see its own header comment).
+- **`OtpLoginFlow`/`otp-input.tsx`**: the login flow component was deleted
+  and replaced with `PasswordLoginFlow`. The generic `OtpInput` UI
+  primitive (`components/ui/otp-input.tsx`) and its `/dev/ui` showcase
+  entry were left in place — harmless, unused, not worth ripping out for
+  a component that might be reused elsewhere later (e.g. a future 2FA
+  feature), but don't assume it's wired to anything.
+
+## Phase 2 gotchas (mostly historical — see the auth redesign above)
 - **No real email yet.** Free-tier Supabase + default email provider refuses
   ANY email template customization ("Email template modification is not
   available for free tier projects using the default email provider.")
