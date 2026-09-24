@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+  </head>
+  <body style="margin:0; padding:0; background-color:#f7f7f4; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f7f7f4; padding:32px 16px;">
+      <tr>
+        <td align="center">
+          <table role="presentation" width="100%" style="max-width:420px; background-color:#ffffff; border:1px solid #e4e3dd; border-radius:16px; padding:32px;">
+            <tr>
+              <td style="font-size:18px; font-weight:600; color:#1f2a4d; padding-bottom:4px;">
+                SDEC
+              </td>
+            </tr>
+            <tr>
+              <td style="font-size:13px; color:#7a808c; padding-bottom:24px;">
+                Student Digital Election Commission
+              </td>
+            </tr>
+            <tr>
+              <td style="font-size:14px; color:#14171f; padding-bottom:20px;">
+                Your sign-in code is:
+              </td>
+            </tr>
+            <tr>
+              <td align="center" style="padding-bottom:24px;">
+                <span style="display:inline-block; font-size:32px; font-weight:600; letter-spacing:6px; color:#0e8c7a; background-color:#e3f4f0; padding:12px 20px; border-radius:12px;">
+                  {{ .Token }}
+                </span>
+              </td>
+            </tr>
+            <tr>
+              <td style="font-size:13px; color:#4a5060; line-height:1.5;">
+                Enter this code where you requested it. It expires in 1 hour and can only be used once. If you didn't request this, you can safely ignore this email.
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

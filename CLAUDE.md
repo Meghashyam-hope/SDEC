@@ -104,6 +104,49 @@ Workflow used for Phase 1, and the one to keep using until Docker exists:
   with shadcn's own `--muted` background token), `navy`, `teal`,
   `teal-tint`, `amber`, `amber-tint`, `red-c`, `red-tint`.
 
+## Phase 2 gotchas
+- **No real email yet.** Free-tier Supabase + default email provider refuses
+  ANY email template customization ("Email template modification is not
+  available for free tier projects using the default email provider.")
+  and `config push` fails the *entire* auth-config batch if the template
+  change is included — split it out. Until Phase 7 sets up custom SMTP:
+  `AUTH_DEV_BYPASS=true` in `.env.local` makes `src/actions/auth.ts` call
+  `admin.auth.admin.generateLink({type:'magiclink', email})` instead of
+  `signInWithOtp()` — this creates a real Supabase Auth OTP without emailing
+  it, and returns it in `properties.email_otp`, shown directly in the login
+  UI. `verifyOtp({email, token, type:'email'})` is unchanged either way, so
+  flipping the flag when real SMTP exists is a one-line change, not a
+  rearchitecture. Also fixed via `supabase config push`:
+  `auth.email.otp_length` (was 8, plan wants 6 — matches the OTP input's 6
+  boxes).
+- **`supabase config push` pushes everything declared in config.toml**, no
+  per-key scoping. Always `supabase config diff` first — `supabase init`'s
+  own template declares things (db.pooler sizing, mfa, site_url) that can
+  silently overwrite real hosted settings. We deliberately left
+  `db.pooler.default_pool_size`/`max_client_conn` undeclared so push can't
+  touch the project's actual provisioned pooler sizing.
+- **Admin/officer auth.users are pre-seeded** (Phase 1), so they never go
+  through the first-login trigger — `handle_new_auth_user()` only fires for
+  genuinely new `auth.users` rows (students, or anyone invited later via
+  `admin.createUser`/`generateLink`, which also inserts one).
+- **Promoting a voter who hasn't signed in yet**: can't set `profiles.role`
+  (no profile exists). `voters.pending_role` stages it; the first-login
+  trigger consumes it. `setVoterRole()` picks the right path based on
+  whether `voters.user_id` is already set. Verified end-to-end: staged a
+  pending officer promotion, signed that voter in for real, confirmed the
+  trigger applied it and cleared `pending_role`.
+- **`/admin/team`'s "commission" list must be queried from `profiles`, not
+  `voters`** — an officer/admin with no voter record (e.g. the seeded
+  placeholder officer) is invisible if you start from `voters`. Demoting
+  such a person needs a plain profile-id update (`setProfileRole`), not the
+  voter-id-based `setVoterRole` path, since there's no voter row to look up.
+- **Base UI `Select`'s `items` map values must be typed `Record<string,
+  string>` explicitly** — `Object.fromEntries` on a spread of tuple arrays
+  infers `Record<string, unknown>`, which fails against `ReactNode`.
+- Pagination links (`<Button render={<a href=... />}>`) need
+  `nativeButton={false}` too — same Base UI rule as any other non-`<button>`
+  render target.
+
 ## Hard rules
 1. Votes are written **only** by the `cast_ballot` Postgres function.
 2. Never store, join or log voter identity together with ballot choices.

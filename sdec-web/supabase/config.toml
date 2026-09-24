@@ -47,10 +47,9 @@ port = 54329
 # Specifies when a server connection can be reused by other clients.
 # Configure one of the supported pooler modes: `transaction`, `session`.
 pool_mode = "transaction"
-# How many server connections to allow per user/database pair.
-default_pool_size = 20
-# Maximum number of client connections allowed.
-max_client_conn = 100
+# default_pool_size / max_client_conn intentionally left undeclared here —
+# `supabase config push` would otherwise overwrite the hosted project's own
+# provisioned pooler sizing with these generic local-dev defaults.
 
 # [db.vault]
 # secret_key = "env(SECRET_VALUE)"
@@ -222,11 +221,15 @@ enable_signup = true
 # addresses. If disabled, only the new email is required to confirm.
 double_confirm_changes = true
 # If enabled, users need to confirm their email address before signing in.
-enable_confirmations = false
+# Kept at the platform default (true) — we don't rely on this for the
+# OTP-only flow either way, and there's no reason to weaken it.
+enable_confirmations = true
 # If enabled, users will need to reauthenticate or have logged in recently to change their password.
 secure_password_change = false
 # Controls the minimum amount of time that must pass before sending another signup confirmation or password reset email.
-max_frequency = "1s"
+# Set to match the UI's resend cooldown (SDEC_PLAN §Phase 2) — kept at a
+# real value rather than the local-dev "1s" default.
+max_frequency = "60s"
 # Number of characters used in the email OTP.
 otp_length = 6
 # Number of seconds before the email OTP expires (defaults to 1 hour).
@@ -246,6 +249,19 @@ otp_expiry = 3600
 # [auth.email.template.invite]
 # subject = "You have been invited"
 # content_path = "./supabase/templates/invite.html"
+
+# signInWithOtp() sends the "magic_link" template even for code-only OTP —
+# this one shows {{ .Token }} instead of a clickable link (SDEC_PLAN §5).
+# NOTE: Supabase rejects any email template customization on the free tier
+# with the default email provider ("Email template modification is not
+# available for free tier projects using the default email provider.
+# Please upgrade your plan or configure a custom SMTP provider.") — this
+# section is disabled until Phase 7 sets up custom SMTP (Resend/Brevo per
+# §5). The template file itself is kept at supabase/templates/magic_link.html
+# ready to enable then.
+# [auth.email.template.magic_link]
+# subject = "Your SDEC sign-in code"
+# content_path = "./supabase/templates/magic_link.html"
 
 # Uncomment to customize notification email template
 # [auth.email.notification.password_changed]

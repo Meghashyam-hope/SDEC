@@ -298,16 +298,19 @@ export type Database = {
         Row: {
           attempted_at: string
           id: number
+          ip: unknown
           roll_number: string
         }
         Insert: {
           attempted_at?: string
           id?: never
+          ip?: unknown
           roll_number: string
         }
         Update: {
           attempted_at?: string
           id?: never
+          ip?: unknown
           roll_number?: string
         }
         Relationships: []
@@ -426,6 +429,7 @@ export type Database = {
           full_name: string
           id: string
           is_active: boolean
+          pending_role: Database["public"]["Enums"]["app_role"] | null
           phone: string | null
           roll_number: string
           section: string | null
@@ -439,6 +443,7 @@ export type Database = {
           full_name: string
           id?: string
           is_active?: boolean
+          pending_role?: Database["public"]["Enums"]["app_role"] | null
           phone?: string | null
           roll_number: string
           section?: string | null
@@ -452,6 +457,7 @@ export type Database = {
           full_name?: string
           id?: string
           is_active?: boolean
+          pending_role?: Database["public"]["Enums"]["app_role"] | null
           phone?: string | null
           roll_number?: string
           section?: string | null
@@ -480,6 +486,7 @@ export type Database = {
       get_results: { Args: { p_election: string }; Returns: Json }
       get_turnout: { Args: { p_election: string }; Returns: Json }
       is_admin: { Args: never; Returns: boolean }
+      is_admin_login_allowed: { Args: { p_email: string }; Returns: boolean }
       is_eligible: {
         Args: {
           eligibility: Json
@@ -488,8 +495,20 @@ export type Database = {
         Returns: boolean
       }
       is_officer_or_admin: { Args: never; Returns: boolean }
-      lookup_voter_for_login: { Args: { p_roll: string }; Returns: Json }
+      lookup_voter_for_login: {
+        Args: { p_ip?: unknown; p_roll: string }
+        Returns: Json
+      }
       verify_receipt: { Args: { p_code: string }; Returns: Json }
+      write_audit_log: {
+        Args: {
+          p_action: string
+          p_entity?: string
+          p_entity_id?: string
+          p_meta?: Json
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "student" | "officer" | "admin"
