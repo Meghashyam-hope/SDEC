@@ -17,13 +17,48 @@ We are rebuilding SDEC (Student Digital Election Commission) as a **Next.js + Su
 
 ## Hosted Supabase (no Docker)
 Docker isn't installed on this machine, so we can't run `supabase start` /
-`db reset` / `test db` locally as the plan assumes. Instead: migrations in
-`supabase/migrations/*.sql` are applied straight to a hosted (free-tier)
-Supabase project via `supabase db push`, and pgTAP tests run against that
-same hosted project (`supabase test db --db-url <connection-string>`) rather
-than a local one. `src/lib/database.types.ts` is a hand-written placeholder
-matching SDEC_PLAN §6 until the real project exists — regenerate it once it
-does.
+`db reset` / `test db` locally as the plan assumes. Project: `sdec`
+(ref `frvupjxngahnbtkyynvt`, ap-south-1), under a separate Supabase account
+logged in via a named CLI profile (`supabase login --token <t> --name sdec`
+switched the *default* profile to that account — `--profile sdec` itself
+doesn't work, gives `LegacyProfileLoadError`). Already linked
+(`supabase link --project-ref frvupjxngahnbtkyynvt`).
+
+Workflow used for Phase 1, and the one to keep using until Docker exists:
+- `npx supabase db push --linked` applies `supabase/migrations/*.sql` directly
+  to the hosted DB — no Docker needed, this is a plain connection-string push.
+- `npx supabase db query --linked -f <file.sql>` runs arbitrary SQL against
+  the hosted DB via the Management API. This is how `supabase/seed.sql` was
+  applied (there's no `--include-seed` path without a local DB) and how the
+  pgTAP suite was verified (see below).
+- **Caveat:** when a `.sql` file has multiple top-level statements, the tool
+  only surfaces the *last* statement's resultset — fine for `db push`/DDL,
+  but for anything where you need to see every statement's output (e.g.
+  running the pgTAP suite and actually seeing per-test pass/fail), wrap each
+  assertion as `insert into a_temp_table select is(...);` etc. and finish
+  with one `select string_agg(line, E'\n' order by n) from a_temp_table;` —
+  see the pattern in supabase/tests/database/*.sql, which stays plain/
+  idiomatic (bare `select is(...)`, `select * from finish()`) for when
+  `supabase test db` becomes available; the aggregating-temp-table version
+  is only how it was *manually verified* this session, not committed.
+- To simulate an authenticated user for RLS/RPC testing without a real
+  signup: `set local request.jwt.claims = '{"sub":"<uuid>"}';` (and
+  `set local role authenticated;` when testing what RLS itself allows, not
+  just a SECURITY DEFINER function) in the same file/session as the calls
+  that need `auth.uid()`.
+- `supabase/tests/database/*.sql` each wrap themselves in `begin; ... rollback;`
+  with self-contained fixtures — never depend on `seed.sql` data, so they're
+  safe to run against the shared hosted project repeatedly.
+- Seeding real `auth.users` rows directly via SQL (for the admin/officer —
+  see `supabase/seed.sql`) needs `instance_id`, `aud`/`role` = 'authenticated',
+  `encrypted_password` = `''` (no password, OTP-only), `email_confirmed_at`
+  = `now()`, plus a matching `auth.identities` row (email provider) — the
+  exact columns were introspected from the live project via
+  `db query --linked` before writing the seed, since this schema is
+  Supabase-managed and can drift between versions/training data.
+- `src/lib/database.types.ts` is now the **real** generated file
+  (`supabase gen types typescript --linked > src/lib/database.types.ts`) —
+  regenerate it after every schema-changing migration.
 
 ## Framework/library gotchas (learned in Phase 0 — read before writing UI code)
 - **Next.js 16, not 15.** Breaking changes from training data — see
@@ -72,7 +107,11 @@ does.
 ## Hard rules
 1. Votes are written **only** by the `cast_ballot` Postgres function.
 2. Never store, join or log voter identity together with ballot choices.
-3. RLS on every table. The service-role key is server-only.
+3. RLS on every table. The service-role key is server-only. In policy
+   `using`/`with check` expressions, always write `(select auth.uid())`,
+   never bare `auth.uid()` — otherwise Postgres re-evaluates it per row
+   instead of once per query (`supabase db advisors --type performance`
+   catches this as `auth_rls_initplan`).
 4. Server actions: Zod validate → auth + role check → work → audit log → typed result.
 5. Times in `timestamptz` (UTC), displayed in `Asia/Kolkata`.
 6. Student screens are mobile-first (375px). Light theme only. Use the design tokens from the plan and don't invent new colors.
