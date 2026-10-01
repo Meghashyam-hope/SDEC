@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { AppHeader } from "@/components/AppHeader";
 import { PasswordLoginFlow } from "@/components/auth/PasswordLoginFlow";
 import { signInStudent } from "@/actions/auth";
@@ -21,10 +20,8 @@ export default function LoginPage() {
           signIn={signInStudent}
         />
         <p className="text-sm text-ink-2">
-          First time, or forgot your password?{" "}
-          <Link href="/signup" className="text-teal underline-offset-2 hover:underline">
-            Set up your account
-          </Link>
+          Forgot your password, or don&apos;t have one yet? Ask the election commission —
+          they can set or reset it for you from the admin panel.
         </p>
       </main>
     </div>

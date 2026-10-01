@@ -63,29 +63,23 @@ Realtime) · Tailwind CSS + shadcn/ui (Base UI) · Zod · Vercel.
 
 ## Authentication
 
-Login is roll number (or email) + a password — no OTP, no SMTP/SMS.
-Passwords can come from either side:
+Login is roll number (or email) + a password — no OTP, no SMTP/SMS, no
+self-service signup. Every password is **admin-provisioned**:
 
-- **Self-service (`/signup`)**: a student enters their roll number and
-  the **phone number on file** (from the CSV import) and picks their own
-  password — no admin involved. The same form also works as "forgot
-  password", since proving phone+roll again is the same check either
-  way. Requires the voter's roll had a phone number in the import; if not,
-  they'll need an admin's help instead (see "Reset password" below).
-- **Admin-provisioned**: an admin/officer can also set a password
-  directly:
-  - **Students**: get a password automatically the first time they're
-    imported via `/admin/voters` → Import CSV. The generated password is
-    shown once (and downloadable as a CSV) for the commission to hand out
-    out-of-band. Existing students can get a new one anytime via "Reset
-    password" on their row.
-  - **Officers/admins**: get a password automatically when an admin
-    promotes them from `/admin/team` (if they don't already have a
-    login), shown once the same way.
+- **Students**: get a password automatically the first time they're
+  imported via `/admin/voters` → Import CSV. The generated password is
+  shown once (and downloadable as a CSV) for the commission to hand out
+  out-of-band. Existing students can get a new one anytime via "Reset
+  password" on their row.
+- **Officers/admins**: get a password automatically when an admin
+  promotes them from `/admin/team` (if they don't already have a
+  login), shown once the same way.
 
-There's still no email/SMS delivery anywhere in this design — the
-commission (or the student themselves, via `/signup`) is always the one
-who ends up knowing a password, not this app sending it anywhere.
+There's no email/SMS delivery anywhere in this design — the commission is
+always the one who ends up knowing a password, not this app sending it
+anywhere. This keeps the login surface minimal and easy to reason about
+for a demo: one account per roll number, provisioned by one trusted
+party, no identity-proofing flow to audit.
 
 ## Making the first admin
 

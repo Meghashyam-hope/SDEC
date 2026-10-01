@@ -123,18 +123,16 @@ this change for the conversation. What's true now:
   `resetVoterPassword`). The generated password is returned once, shown
   in the UI (and, for CSV import, downloadable as a CSV) — there is no
   other record of it.
-- **`/signup` (`claimVoterAccount` in `actions/auth.ts`) is the
-  self-service alternative**, added after voters found "wait for the
-  admin to hand me a password" too much friction. A voter proves it's
-  really them with roll number + the `voters.phone` value from CSV import
-  (the only per-voter secret-ish field that already existed — adding one
-  would've needed a migration) and picks their own password. Same
-  function handles both first-time setup (no `user_id` yet → `createUser`)
-  and "forgot password" (`user_id` already set → `updateUserById`) since
-  the identity check is identical either way, then signs them in
-  immediately. A voter with no phone on file can't use this — falls back
-  to an admin's "Reset password". Reuses `lookup_voter_for_login` purely
-  for its rate-limit side effect, same as `signInStudent`.
+- **No self-service signup.** A `/signup` (`claimVoterAccount`) flow using
+  roll number + `voters.phone` as an identity check existed briefly but
+  was removed — this build is a class assignment demo, not a real
+  election, so the simpler story ("the commission provisions every
+  password, full stop") is both less code and easier to explain/defend
+  than an ad-hoc identity-proofing flow. Still in git history
+  (`f38aea8`) if a future real deployment wants it back. The only way to
+  get or reset a password now is an admin/officer action (`actions/
+  voters.ts`'s CSV import/`resetVoterPassword`, or `actions/team.ts`'s
+  promotion flow).
 - **`handle_new_auth_user()` (20260924000010) didn't need to change at
   all.** It fires on any `auth.users` insert regardless of how the row
   got there — OTP magic-link, `admin.createUser`, real signup — and links
